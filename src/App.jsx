@@ -1,14 +1,12 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
+import EventSearcher from './components/ui/EventSearcher'
 import './App.css'
 
 function App() {
-
   return (
     <>
-      <h1>Holaa</h1>
+      <main>
+        <EventSearcher />
+      </main>
     </>
   )
 }
