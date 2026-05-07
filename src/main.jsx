@@ -4,6 +4,7 @@ import './index.css'
 import App from './App.jsx'
 import { BrowserRouter } from 'react-router-dom'
 import Footer from './components/layout/Footer.jsx'
+import './i18n.js';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
