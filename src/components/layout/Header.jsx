@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-function Navbar() {
+function Header() {
   const [currentUser, setCurrentUser] = useState(() => {
     const stored = localStorage.getItem("currentUser");
     return stored ? JSON.parse(stored) : null;
@@ -56,4 +56,4 @@ function Navbar() {
   );
 }
 
-export default Navbar;
+export default Header;

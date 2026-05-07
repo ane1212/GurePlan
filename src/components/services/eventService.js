@@ -145,4 +145,3 @@ export async function eventById(id) {
     console.error("Error cargando evento por id:", err);
     return null;
   }
-}
