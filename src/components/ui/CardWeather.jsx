@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-// Importamos las funciones y constantes actualizadas desde tu servicio
 import { getLocalWeather, getWeatherDescription, WEATHER_ICONS } from '../services/weatherService';
 
 /**
@@ -21,15 +20,12 @@ const CardWeather = ({ onWeatherLoad }) => {
         const fetchData = async (lat, lon) => {
             try {
                 setLoading(true);
-                // Cambio: Ahora usamos getLocalWeather según tu última actualización
                 const data = await getLocalWeather(lat, lon);
 
                 if (data) {
                     setWeather(data);
-                    // Obtenemos la configuración del clima (texto e icono)
                     const { icon } = getWeatherDescription(data.weathercode);
 
-                    // Notificamos al componente padre para que pueda cambiar fondos o estilos
                     if (onWeatherLoad) onWeatherLoad(icon);
                     setError(false);
                 } else {
@@ -43,11 +39,10 @@ const CardWeather = ({ onWeatherLoad }) => {
             }
         };
 
-        // Intentar obtener la ubicación real o usar Bilbao como fallback
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
                 (pos) => fetchData(pos.coords.latitude, pos.coords.longitude),
-                () => fetchData(43.2627, -2.9253) // Fallback: Bilbao
+                () => fetchData(43.2627, -2.9253)
             );
         } else {
             fetchData(43.2627, -2.9253);
@@ -57,13 +52,12 @@ const CardWeather = ({ onWeatherLoad }) => {
     if (loading) return <div className="card-weather loading">Cargando clima...</div>;
     if (error || !weather) return <div className="card-weather error">Clima no disponible</div>;
 
-    // Obtenemos la traducción y la clave del icono
+
     const { text, icon } = getWeatherDescription(weather.weathercode);
 
     return (
         <div className={`card-weather ${icon}`}>
             <div className="weather-info">
-                {/* Renderizado seguro del string SVG definido en el servicio */}
                 <div
                     className="weather-icon"
                     dangerouslySetInnerHTML={{ __html: WEATHER_ICONS[icon] }}
@@ -72,7 +66,6 @@ const CardWeather = ({ onWeatherLoad }) => {
                 <h3>{text}</h3>
 
                 <div className="weather-stats">
-                    {/* Cambio: Usamos weather.temp porque así lo mapeaste en el servicio */}
                     <p><strong>Temp:</strong> {Math.round(weather.temp)}°C</p>
                     <p><strong>Viento:</strong> {weather.windspeed} km/h</p>
                     <p>
