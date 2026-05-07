@@ -1,12 +1,11 @@
 import { useState, useEffect, useRef } from 'react'
 import { events, municipalities, eventTypes } from '../services/eventService'
-import { fetchWeather, isBadWeather } from '../services/weatherService'
+import { getLocalWeather } from '../services/weatherService'
 // CardEvent lo construye otro compañero. Cuando esté listo, descomentar:
 // import CardEvent from '../ui/CardEvent'
 
 // ---------------------------------------------------------------------------
 // Constantes
-// Sin cambios respecto al original.
 // ---------------------------------------------------------------------------
 
 const DEFAULT_LAT = 43.263
@@ -19,9 +18,24 @@ const INDOOR_TYPES = [
 ]
 
 // ---------------------------------------------------------------------------
+// isBadWeather
+// Definida aquí porque weatherService.js no la exporta.
+// Devuelve true si el código WMO indica mal tiempo.
+// ---------------------------------------------------------------------------
+
+function isBadWeather(code) {
+  if (code == null) return false
+  return (
+    (code >= 45 && code <= 48) ||
+    (code >= 51 && code <= 67) ||
+    (code >= 71 && code <= 77) ||
+    (code >= 80 && code <= 86) ||
+    (code >= 95 && code <= 99)
+  )
+}
+
+// ---------------------------------------------------------------------------
 // isIndoor
-// Función pura sin cambios. Comprueba si un evento es de interior
-// comparando su tipo con la lista INDOOR_TYPES.
 // ---------------------------------------------------------------------------
 
 function isIndoor(event) {
@@ -36,38 +50,44 @@ function isIndoor(event) {
 function EventSearcher() {
 
   // --- Estado de los selects ---
-  // Se cargan una sola vez al montar el componente (useEffect con []).
   const [municipalityList, setMunicipalityList] = useState([])
   const [typeList, setTypeList] = useState([])
 
   // --- Estado de los filtros activos ---
-  // Cada vez que el usuario cambia un filtro, React actualiza este estado
-  // y el segundo useEffect se dispara automáticamente para buscar eventos.
-  // En el original esto lo gestionaba applyFilters() llamado manualmente.
   const [selectedMunicipality, setSelectedMunicipality] = useState('todos')
   const [selectedType, setSelectedType] = useState('todos')
   const [selectedDate, setSelectedDate] = useState(
-    // Valor inicial: fecha de hoy en formato YYYY-MM-DD, igual que listDate()
     new Date().toISOString().split('T')[0]
   )
+  const [selectedLanguages, setSelectedLanguages] = useState([])
 
   // --- Estado de los resultados ---
   const [eventList, setEventList] = useState([])
   const [weatherData, setWeatherData] = useState(null)
   const [weatherBanner, setWeatherBanner] = useState('good')
   const [loading, setLoading] = useState(false)
-  const [selectedLanguages, setSelectedLanguages] = useState([])  // vacío = todos los idiomas
+  const [currentPage, setCurrentPage] = useState(1)
+  const [showResetMessage, setShowResetMessage] = useState(false)
 
   // --- Mapa de coordenadas por municipio ---
-  // useRef en lugar de useState porque este Map solo se consulta,
-  // nunca necesita provocar un re-render al actualizarse.
   const municipalityCoords = useRef(new Map())
 
   // ---------------------------------------------------------------------------
+  // useEffect de reset de página
+  // Observa solo los filtros, NO currentPage, para evitar bucle infinito.
+  // Cuando el usuario cambia un filtro: vuelve a página 1 y muestra el aviso
+  // 3 segundos. El return limpia el timer si el componente se desmonta antes.
+  // ---------------------------------------------------------------------------
+
+  useEffect(() => {
+    setCurrentPage(1)
+    setShowResetMessage(true)
+    const timer = setTimeout(() => setShowResetMessage(false), 3000)
+    return () => clearTimeout(timer)
+  }, [selectedMunicipality, selectedType, selectedDate, selectedLanguages])
+
+  // ---------------------------------------------------------------------------
   // handleLanguageChange
-  // Gestiona el estado del array selectedLanguages cuando el usuario
-  // marca o desmarca un checkbox de idioma.
-  // Si el idioma ya estaba en el array lo quita; si no estaba lo añade.
   // ---------------------------------------------------------------------------
 
   function handleLanguageChange(langCode) {
@@ -79,24 +99,19 @@ function EventSearcher() {
   }
 
   // ---------------------------------------------------------------------------
-  // useEffect de inicialización — equivale a DOMContentLoaded del original.
-  // Se ejecuta una sola vez al montar el componente (array de deps vacío []).
-  // Carga municipios y tipos para poblar los selects.
+  // useEffect de inicialización — se ejecuta solo al montar.
   // ---------------------------------------------------------------------------
 
   useEffect(() => {
     async function init() {
-      // Carga municipios
       const allMunicipalities = await municipalities()
 
-      // Construye el mapa de coordenadas igual que en el original
       allMunicipalities.forEach(m => {
         if (m.lat && m.lon) {
           municipalityCoords.current.set(String(m.id), { lat: m.lat, lon: m.lon })
         }
       })
 
-      // Bilbao primero, igual que listMunicipalities() del original
       const bilbao = allMunicipalities.find(
         m => m.name?.toLowerCase() === 'bilbao'
       )
@@ -106,7 +121,6 @@ function EventSearcher() {
       ]
       setMunicipalityList(ordered)
 
-      // Carga tipos de evento
       const allTypes = await eventTypes()
       setTypeList(allTypes)
     }
@@ -115,16 +129,13 @@ function EventSearcher() {
   }, [])
 
   // ---------------------------------------------------------------------------
-  // useEffect de filtros — equivale a applyFilters() del original.
-  // Se ejecuta cada vez que el usuario cambia municipio, tipo o fecha.
-  // Las dependencias del array le dicen a React exactamente cuándo repetirlo.
+  // useEffect de filtros — se ejecuta cuando cambia un filtro o la página.
   // ---------------------------------------------------------------------------
 
   useEffect(() => {
     async function applyFilters() {
       setLoading(true)
 
-      // Construye los parámetros de fecha igual que en el original
       let day = null, month = null, year = null
       if (selectedDate) {
         const [y, m, d] = selectedDate.split('-')
@@ -136,26 +147,22 @@ function EventSearcher() {
       const municipalityId = selectedMunicipality !== 'todos' ? selectedMunicipality : null
       const type = selectedType !== 'todos' ? selectedType : null
 
-      // Llama a la API de eventos
-      const results = await events(30, 1, day, month, municipalityId, null, type, year)
+      const results = await events(30, currentPage, day, month, municipalityId, null, type, year)
 
-      // Obtiene el código del tiempo según las coordenadas disponibles,
-      // con la misma lógica de prioridad que el original
+      // Obtiene el tiempo con getLocalWeather (nombre real en weatherService.js)
       let weather = null
       if (municipalityId && municipalityCoords.current.has(municipalityId)) {
         const { lat, lon } = municipalityCoords.current.get(municipalityId)
-        weather = await fetchWeather(lat, lon)
+        weather = await getLocalWeather(lat, lon)
       } else if (results.length > 0 && results[0].lat && results[0].lon) {
-        weather = await fetchWeather(results[0].lat, results[0].lon)
+        weather = await getLocalWeather(results[0].lat, results[0].lon)
       } else {
-        weather = await fetchWeather(DEFAULT_LAT, DEFAULT_LON)
+        weather = await getLocalWeather(DEFAULT_LAT, DEFAULT_LON)
       }
 
       setWeatherData(weather)
 
-      // Filtro de idioma — aplicado en el frontend sobre los resultados
-      // porque la API no acepta este parámetro.
-      // Si selectedLanguages está vacío se muestran todos los idiomas.
+      // Filtro de idioma en frontend
       let filteredResults = results
       if (selectedLanguages.length > 0) {
         filteredResults = results.filter(e =>
@@ -163,7 +170,8 @@ function EventSearcher() {
         )
       }
 
-      // Lógica del banner y filtro de interior — sin cambios respecto al original
+      // Banner del tiempo y filtro de interior
+      // getLocalWeather devuelve el campo como "weathercode"
       const weatherCode = weather?.weathercode ?? null
       if (isBadWeather(weatherCode) && type === null) {
         const indoorResults = filteredResults.filter(e => isIndoor(e))
@@ -183,7 +191,7 @@ function EventSearcher() {
     }
 
     applyFilters()
-  }, [selectedMunicipality, selectedType, selectedDate, selectedLanguages])
+  }, [selectedMunicipality, selectedType, selectedDate, selectedLanguages, currentPage])
 
   // ---------------------------------------------------------------------------
   // Render
@@ -192,10 +200,6 @@ function EventSearcher() {
   return (
     <section className="event-searcher">
 
-      {/* --- Filtros ---
-          En el original cada filtro era un custom select construido con DOM.
-          Aquí son elementos <select> nativos de HTML con onChange,
-          que es la forma correcta en React. */}
       <div className="filters">
 
         {/* Filtro de municipio */}
@@ -237,9 +241,7 @@ function EventSearcher() {
           />
         </div>
 
-        {/* Filtro de idioma — checkboxes porque se pueden seleccionar varios.
-            Vacío = todos los idiomas. Cada cambio llama a handleLanguageChange,
-            que añade o quita el código del array selectedLanguages. */}
+        {/* Filtro de idioma */}
         <div id="language-filter">
           {[
             { code: 'ES', label: 'Español' },
@@ -259,9 +261,7 @@ function EventSearcher() {
 
       </div>
 
-      {/* --- Banner del tiempo ---
-          En el original showWeatherBanner() creaba y modificaba un div
-          con getElementById. Aquí es JSX condicional puro. */}
+      {/* Banner del tiempo */}
       {weatherBanner === 'bad' && (
         <div className="weather-banner weather-banner--bad">
           <span>Hoy llueve, te recomendamos solo planes de interior como teatro, cine o exposiciones</span>
@@ -278,11 +278,14 @@ function EventSearcher() {
         </div>
       )}
 
-      {/* --- Lista de eventos ---
-          En el original renderEvents() volcaba HTML en un div con innerHTML.
-          Aquí es un .map() sobre el estado eventList.
-          Cuando CardEvent esté listo, sustituir el <p> provisional por:
-          <CardEvent key={event.id} event={event} /> */}
+      {/* Aviso de reset de página */}
+      {showResetMessage && (
+        <div className="reset-message">
+          Has cambiado un filtro, mostrando resultados desde la página 1.
+        </div>
+      )}
+
+      {/* Lista de eventos */}
       <div id="view-container">
         {loading && <p>Cargando eventos...</p>}
 
@@ -292,9 +295,27 @@ function EventSearcher() {
 
         {!loading && eventList.map(event => (
           // TODO: reemplazar por <CardEvent key={event.id} event={event} />
-          //       cuando el componente esté disponible
           <p key={event.id}>{event.title}</p>
         ))}
+      </div>
+
+      {/* Paginación */}
+      <div className="pagination">
+        <button
+          onClick={() => setCurrentPage(p => p - 1)}
+          disabled={currentPage === 1}
+        >
+          Anterior
+        </button>
+
+        <span>Página {currentPage}</span>
+
+        <button
+          onClick={() => setCurrentPage(p => p + 1)}
+          disabled={eventList.length < 30}
+        >
+          Siguiente
+        </button>
       </div>
 
     </section>

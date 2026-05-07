@@ -1,6 +1,6 @@
-import EventSearcher from './components/ui/EventSearcher'
 import { useState, useEffect } from 'react'
 import './App.css'
+import EventSearcher from './components/ui/EventSearcher';
 import CardWeather from './components/ui/CardWeather';
 import { useTranslation } from 'react-i18next';
 import LanguageSelector from './components/layout/LanguageSelector';
