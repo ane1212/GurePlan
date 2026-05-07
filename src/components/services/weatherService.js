@@ -54,3 +54,7 @@ export const getLocalWeather = async (lat, lon) => {
         return null;
     }
 };
+
+export const isBadWeather = (code) => {
+    return code >= 51;
+};
