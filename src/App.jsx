@@ -3,15 +3,14 @@ import './App.css'
 import CardWeather from './components/ui/CardWeather';
 import { useTranslation } from 'react-i18next';
 import LanguageSelector from './components/layout/LanguageSelector';
-
-function App() {
-  const { t } = useTranslation();
 import CardEvent from './components/ui/CardEvent'
 import { events } from './components/services/eventService'
 
 function App() {
   const [eventList, setEventList] = useState([])
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(true);
+  const { t } = useTranslation();
+
 
   useEffect(() => {
     async function load() {
