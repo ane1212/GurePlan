@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getFavorites } from '../components/services/localStorageService';
+import { getFavorites } from '../services/localStorageService';
 import CardEvent from '../components/ui/CardEvent';
 
 const Favorites = () => {

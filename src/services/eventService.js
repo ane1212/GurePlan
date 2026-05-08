@@ -1,4 +1,4 @@
-import { APIEvent, APIProvince, APIMunicipality, APIType } from '../../models/EventModels';
+import { APIEvent, APIProvince, APIMunicipality, APIType } from '../models/EventModels';
 
 const URL_BASE = "https://api.euskadi.eus/culture/events";
 

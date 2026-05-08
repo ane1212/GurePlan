@@ -10,7 +10,7 @@ import Auth from './components/login';
 // Pages
 import Favorites from './pages/Favorites';
 import About from './pages/About';
-import CardEventDetails from './pages/Details/CardEventDetails';
+import CardEventDetails from './pages/CardEventDetails';
 
 // Styles
 import './App.css'
@@ -19,7 +19,7 @@ function App() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
-  
+
   const [currentUser, setCurrentUser] = useState(() => {
     const stored = localStorage.getItem("currentUser");
     return stored ? JSON.parse(stored) : null;
@@ -54,7 +54,7 @@ function App() {
 
         <div className="nav-right">
           <LanguageSelector />
-          
+
           {currentUser ? (
             <div className="user-profile">
               <span className="username">{currentUser.name}</span>
@@ -84,7 +84,7 @@ function App() {
               <EventSearcher />
             </>
           } />
-          
+
           <Route path="/login" element={<Auth onLogin={(user) => setCurrentUser(user)} />} />
           <Route path="/favorites" element={<Favorites />} />
           <Route path="/about" element={<About />} />

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { events, municipalities, eventTypes } from "../services/eventService";
+import { events, municipalities, eventTypes } from "../../services/eventService";
 import CardEvent from '../ui/CardEvent';
 import CardWeather from './CardWeather';
 
