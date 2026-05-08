@@ -16,6 +16,7 @@ export class APIEvent {
         this.province = provinceMap.get(Number(event.provinceNoraCode)) || '';
         this.lat = event?.municipalityLatitude ?? null;
         this.lon = event?.municipalityLongitude ?? null;
+        this.language = event?.lang ?? 'ES';
     }
 }
 

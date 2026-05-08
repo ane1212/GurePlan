@@ -1,6 +1,8 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-const Auth = () => {
+const Auth = ({ onLogin }) => {
+  const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
     name: "",
@@ -8,14 +10,12 @@ const Auth = () => {
     password: "",
     confirmPassword: "",
   });
-  const [error, setError] = useState(false);
+  const [error, setError] = useState("");
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
-    if (name.includes("password") || name.includes("Confirm")) {
-      setError(false);
-    }
+    setError("");
   };
 
   const handleRegister = (e) => {
@@ -23,14 +23,14 @@ const Auth = () => {
     const { name, email, password, confirmPassword } = formData;
 
     if (password !== confirmPassword) {
-      setError(true);
+      setError("Las contraseñas no coinciden");
       return;
     }
 
     const users = JSON.parse(localStorage.getItem("users")) || [];
 
     if (users.find((u) => u.email === email)) {
-      alert("Este correo ya está registrado.");
+      setError("Este correo ya está registrado.");
       return;
     }
 
@@ -38,8 +38,7 @@ const Auth = () => {
     users.push(newUser);
     localStorage.setItem("users", JSON.stringify(users));
 
-    alert("Usuario registrado con éxito");
-    setFormData({ name: "", email: "", password: "", confirmPassword: "" });
+    alert("Usuario registrado con éxito. Ya puedes iniciar sesión.");
     setIsLogin(true);
   };
 
@@ -54,10 +53,10 @@ const Auth = () => {
 
     if (user) {
       localStorage.setItem("currentUser", JSON.stringify(user));
-      alert(`Bienvenido, ${user.name}!`);
-      window.location.href = "/";
+      if (onLogin) onLogin(user);
+      navigate("/");
     } else {
-      alert("Correo electrónico o contraseña incorrectos");
+      setError("Correo electrónico o contraseña incorrectos");
     }
   };
 
@@ -65,11 +64,11 @@ const Auth = () => {
     <div className="auth-container">
       {isLogin ? (
         <form id="login-form" onSubmit={handleLogin}>
-          <h2>Login</h2>
+          <h2>Iniciar Sesión</h2>
           <input
             type="email"
             name="email"
-            placeholder="Email"
+            placeholder="Correo electrónico"
             value={formData.email}
             onChange={handleChange}
             required
@@ -77,29 +76,30 @@ const Auth = () => {
           <input
             type="password"
             name="password"
-            placeholder="Password"
+            placeholder="Contraseña"
             value={formData.password}
             onChange={handleChange}
             required
           />
-          <button type="submit">Entrar</button>
+          {error && <p style={{ color: "#f43f5e", fontSize: "0.9rem" }}>{error}</p>}
+          <button type="submit" className="btn-auth">Entrar</button>
           <p>
             ¿No tienes cuenta?{" "}
             <span
               onClick={() => setIsLogin(false)}
-              style={{ cursor: "pointer", color: "blue" }}
+              style={{ cursor: "pointer", color: "#6366f1", fontWeight: "600" }}
             >
-              Regístrate
+              Regístrate aquí
             </span>
           </p>
         </form>
       ) : (
         <form id="register-form" onSubmit={handleRegister}>
-          <h2>Registro</h2>
+          <h2>Crear Cuenta</h2>
           <input
             type="text"
             name="name"
-            placeholder="Nombre"
+            placeholder="Tu nombre"
             value={formData.name}
             onChange={handleChange}
             required
@@ -107,7 +107,7 @@ const Auth = () => {
           <input
             type="email"
             name="email"
-            placeholder="Email"
+            placeholder="Correo electrónico"
             value={formData.email}
             onChange={handleChange}
             required
@@ -123,22 +123,20 @@ const Auth = () => {
           <input
             type="password"
             name="confirmPassword"
-            placeholder="Repetir contraseña"
+            placeholder="Confirmar contraseña"
             value={formData.confirmPassword}
             onChange={handleChange}
             required
           />
 
-          {error && (
-            <p style={{ color: "red" }}>Las contraseñas no coinciden</p>
-          )}
+          {error && <p style={{ color: "#f43f5e", fontSize: "0.9rem" }}>{error}</p>}
 
-          <button type="submit">Registrarse</button>
+          <button type="submit" className="btn-auth">Registrarse</button>
           <p>
             ¿Ya tienes cuenta?{" "}
             <span
               onClick={() => setIsLogin(true)}
-              style={{ cursor: "pointer", color: "blue" }}
+              style={{ cursor: "pointer", color: "#6366f1", fontWeight: "600" }}
             >
               Inicia sesión
             </span>

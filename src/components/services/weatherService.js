@@ -41,7 +41,7 @@ export function getWeatherDescription(code) {
  */
 export const getLocalWeather = async (lat, lon) => {
     try {
-        const url = `${BASE_URL}?latitude=${lat}&longitude=${lon}&current_weather=true&timezone=auto`;
+        const url = `${BASE_URL}?latitude=${lat}&longitude=${lon}&current_weather=true&timezone=auto&_=${new Date().getTime()}`;
         const response = await fetch(url);
         if (!response.ok) throw new Error('Error en la petición');
 
@@ -53,4 +53,8 @@ export const getLocalWeather = async (lat, lon) => {
         console.error("Error en weatherService:", error);
         return null;
     }
+};
+
+export const isBadWeather = (code) => {
+    return code >= 51;
 };
