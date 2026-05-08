@@ -1,0 +1,311 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Plus+Jakarta+Sans:wght@400;700&display=swap');
+@import 'components.css';
+@import 'pages.css';
+
+/* ── Reset ────────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ── Variables CSS — Mobile first (< 768px) ───────────────── */
+:root {
+  /* --- Colores: paleta principal --- */
+  --color-primary:       #0D2045;  /* Navy profundo */
+  --color-primary-dark:  #071228;  /* Navy oscuro — hover */
+  --color-primary-light: #1E3A6E;  /* Navy claro */
+
+  /* --- Colores: acento --- */
+  --color-accent:       #D95E00;   /* Naranja festivo — 4.6:1 sobre blanco ✓ AA */
+  --color-accent-dark:  #B34A00;   /* Naranja hover   — 6.1:1 ✓ AA */
+  --color-accent-light: #F4761A;   /* Naranja suave — sobre fondos oscuros */
+
+  /* --- Colores: fondos y superficies --- */
+  --color-bg:      #F8F7FC;  /* Fondo general */
+  --color-bg-alt:  #EEF0F8;  /* Fondo de secciones alternativas */
+  --color-surface: #FFFFFF;  /* Tarjetas y paneles */
+
+  /* --- Colores: texto (todos WCAG AA sobre fondo claro) --- */
+  --color-text-primary:   #0D1527;  /* ~18:1 ✓ */
+  --color-text-secondary: #3D4966;  /*  7.2:1 ✓ */
+  --color-text-muted:     #5E6A87;  /*  4.7:1 ✓ */
+  --color-text-inverse:   #FFFFFF;  /* sobre fondos oscuros */
+
+  /* --- Colores: bordes --- */
+  --color-border:       #D0D5E8;
+  --color-border-strong:#A8B0CC;
+  --color-border-focus: #D95E00;   /* indicador de foco WCAG 2.4.11 */
+
+  /* --- Colores: estados (todos WCAG AA sobre su fondo -bg) --- */
+  --color-success:    #1A7A4A;  /* 4.6:1 sobre #E8F5EE ✓ */
+  --color-success-bg: #E8F5EE;
+  --color-warning:    #7A5200;  /* 7.0:1 sobre #FFF8E8 ✓ */
+  --color-warning-bg: #FFF8E8;
+  --color-error:      #B81C1C;  /* 5.5:1 sobre #FDF0F0 ✓ */
+  --color-error-bg:   #FDF0F0;
+  --color-info:       #0A5AA0;  /* 5.1:1 sobre #EAF2FB ✓ */
+  --color-info-bg:    #EAF2FB;
+
+  /* --- Tipografía: fuentes --- */
+  --font-display: 'DM Serif Display', Georgia, serif;
+  --font-body:    'Plus Jakarta Sans', 'Segoe UI', system-ui, sans-serif;
+
+  /* --- Tipografía: 2 pesos --- */
+  --weight-regular: 400;
+  --weight-bold:    700;
+
+  /* --- Tipografía: 3 tamaños — escala mobile (< 768px) ---
+     --text-sm      etiquetas, meta, captions
+     --text-base    cuerpo de texto
+     --text-display encabezados h1–h3 (h2 y h3 son fracciones de este) */
+  --text-sm:      0.875rem;  /* 14px */
+  --text-base:    1rem;      /* 16px */
+  --text-display: 2rem;      /* 32px */
+
+  /* --- Espaciado (escala 4px) --- */
+  --space-1:  0.25rem;
+  --space-2:  0.5rem;
+  --space-3:  0.75rem;
+  --space-4:  1rem;
+  --space-5:  1.25rem;
+  --space-6:  1.5rem;
+  --space-8:  2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-20: 5rem;
+  --space-24: 6rem;
+
+  /* --- 4 radios de borde --- */
+  --radius-sm:   4px;
+  --radius-md:   12px;
+  --radius-lg:   24px;
+  --radius-full: 9999px;
+
+  /* --- 2 sombras --- */
+  --shadow-sm: 0 2px 8px  rgba(13, 32, 69, 0.09);
+  --shadow-lg: 0 10px 36px rgba(13, 32, 69, 0.18);
+
+  /* --- 2 transiciones --- */
+  --transition-fast: 150ms ease;
+  --transition-base: 300ms ease;
+
+  /* --- 2 contenedores + padding lateral --- */
+  --container-max:    1200px;
+  --container-narrow: 760px;
+  --container-px:     var(--space-4);
+
+  /* --- Z-index --- */
+  --z-dropdown: 100;
+  --z-sticky:   200;
+  --z-overlay:  300;
+  --z-toast:    500;
+}
+
+/* ── Breakpoint tablet (≥ 768px) ──────────────────────────── */
+@media (min-width: 768px) {
+  :root {
+    --text-sm:      0.875rem;   /* 14px */
+    --text-base:    1.0625rem;  /* 17px */
+    --text-display: 2.75rem;    /* 44px */
+    --container-px: var(--space-6);
+  }
+}
+
+/* ── Breakpoint desktop (≥ 1200px) ───────────────────────── */
+@media (min-width: 1200px) {
+  :root {
+    --text-sm:      1rem;       /* 16px */
+    --text-base:    1.125rem;   /* 18px */
+    --text-display: 3.5rem;     /* 56px */
+    --container-px: var(--space-8);
+  }
+}
+
+/* ── Base HTML ────────────────────────────────────────────── */
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  font-weight: var(--weight-regular);
+  line-height: 1.5;  /* WCAG 1.4.12: mínimo 1.5 para cuerpo ✓ */
+  color: var(--color-text-primary);
+  background-color: var(--color-bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Foco visible (WCAG 2.4.11) ──────────────────────────── */
+:focus-visible {
+  outline: 3px solid var(--color-border-focus);
+  outline-offset: 3px;
+  border-radius: var(--radius-sm);
+}
+
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ── Skip to content ──────────────────────────────────────── */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: var(--space-4);
+  z-index: var(--z-toast);
+  padding: var(--space-3) var(--space-6);
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
+  font-weight: var(--weight-bold);
+  font-size: var(--text-base);
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  transition: top var(--transition-fast);
+}
+
+.skip-link:focus {
+  top: var(--space-4);
+  outline: 3px solid var(--color-accent);
+}
+
+/* ── Encabezados ──────────────────────────────────────────── */
+/* h1–h3 usan --text-display escalado; h4–h6 usan --text-base */
+
+h1, h2, h3 {
+  font-family: var(--font-display);
+  font-weight: var(--weight-regular);  /* DM Serif Display luce mejor en regular */
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--color-text-primary);
+}
+
+h1 { font-size: var(--text-display); }                     /* 32 / 44 / 56px */
+
+h2 { font-size: calc(var(--text-display) * 0.72); }        /* 23 / 32 / 40px */
+
+h3 { font-size: calc(var(--text-display) * 0.57); }        /* 18 / 25 / 32px */
+
+h4, h5, h6 {
+  font-family: var(--font-body);
+  font-weight: var(--weight-bold);
+  line-height: 1.3;
+  color: var(--color-text-primary);
+}
+
+h4 { font-size: calc(var(--text-base) * 1.25); }           /* 20 / 21 / 22px */
+
+h5 { font-size: var(--text-base); }
+
+h6 {
+  font-size: var(--text-sm);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+}
+
+/* ── Párrafos ─────────────────────────────────────────────── */
+p {
+  font-size: var(--text-base);
+  line-height: 1.65;
+  color: var(--color-text-secondary);
+  max-width: 70ch;  /* WCAG 1.4.8: longitud de línea recomendada */
+}
+
+/* ── Enlace base ──────────────────────────────────────────── */
+a {
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 3px;
+  transition: color var(--transition-fast);
+}
+
+a:hover {
+  color: var(--color-accent-dark);
+}
+
+/* ── Elementos inline ─────────────────────────────────────── */
+strong, b { font-weight: var(--weight-bold); }
+em, i     { font-style: italic; }
+
+small {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+mark {
+  background-color: #FFF3CD;
+  color: var(--color-text-primary);
+  padding: 0 var(--space-1);
+  border-radius: 2px;
+}
+
+/* ── Listas ───────────────────────────────────────────────── */
+ul, ol {
+  padding-left: var(--space-6);
+  color: var(--color-text-secondary);
+  line-height: 1.65;
+}
+
+li + li {
+  margin-top: var(--space-1);
+}
+
+/* ── Separador ────────────────────────────────────────────── */
+hr {
+  border: none;
+  border-top: 1px solid var(--color-border);
+  margin: var(--space-8) 0;
+}
+
+/* ── Imagen base ──────────────────────────────────────────── */
+img, video {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* ── Contenedores ─────────────────────────────────────────── */
+.container {
+  width: 100%;
+  max-width: var(--container-max);
+  margin-inline: auto;
+  padding-inline: var(--container-px);
+}
+
+.container--narrow {
+  max-width: var(--container-narrow);
+}
+
+/* ── Visually hidden (accesibilidad) ──────────────────────── */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ── Reducción de movimiento (WCAG 2.3.3) ─────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
