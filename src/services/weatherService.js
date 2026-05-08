@@ -1,12 +1,14 @@
 /**
  * @file weatherService.js
- * Lógica de negocio y peticiones a la API de Open-Meteo.
+ * @description Lógica de negocio y peticiones a la API de Open-Meteo para obtener datos climáticos.
  */
 
+/** @constant {string} URL base de la API de Open-Meteo */
 const BASE_URL = 'https://api.open-meteo.com/v1/forecast';
 
 /**
- * Diccionario de iconos SVG.
+ * Diccionario de iconos SVG para representar diferentes estados del clima.
+ * @constant {Object}
  */
 export const WEATHER_ICONS = {
     sun: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>`,
@@ -20,7 +22,11 @@ export const WEATHER_ICONS = {
 };
 
 /**
- * Mapea el código de Open-Meteo a descripción e icono.
+ * Mapea el código meteorológico de Open-Meteo (WMO) a una descripción textual y una clave de icono.
+ * @param {number} code - El código meteorológico devuelto por la API.
+ * @returns {Object} Un objeto con las propiedades `text` e `icon`.
+ * @returns {string} returns.text - Descripción en castellano del clima.
+ * @returns {string} returns.icon - Clave para el objeto WEATHER_ICONS.
  */
 export function getWeatherDescription(code) {
     if (code === 0) return { text: "Cielo despejado", icon: "sun" };
@@ -35,11 +41,14 @@ export function getWeatherDescription(code) {
 }
 
 /**
- * Obtiene el clima local por coordenadas.
+ * Obtiene los datos del clima actual para unas coordenadas específicas.
+ * @async
+ * @param {number} lat - Latitud.
+ * @param {number} lon - Longitud.
+ * @returns {Promise<Object|null>} Objeto con datos del clima (temp, windspeed, weathercode, humidity, time) o null si falla.
  */
 export const getLocalWeather = async (lat, lon) => {
     try {
-        // Usamos la API actual con el parámetro 'current' que es el recomendado ahora
         const url = `${BASE_URL}?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&timezone=auto`;
         const response = await fetch(url);
         if (!response.ok) throw new Error('Error en la petición');
@@ -60,6 +69,11 @@ export const getLocalWeather = async (lat, lon) => {
     }
 };
 
+/**
+ * Determina si el código meteorológico indica "mal tiempo" (lluvia, nieve, tormenta).
+ * @param {number} code - Código meteorológico.
+ * @returns {boolean} True si es mal tiempo, false en caso contrario.
+ */
 export const isBadWeather = (code) => {
     return code >= 51;
 };
