@@ -1,4 +1,4 @@
-# GurePlan (Planes-Fav) 🌟
+# GurePlan
 
 **GurePlan** es una aplicación web moderna diseñada para ayudar a los usuarios a descubrir, explorar y guardar planes culturales en Euskadi de forma sencilla e intuitiva. La plataforma centraliza la oferta cultural de **Open Data Euskadi**, facilitando la toma de decisiones sobre qué hacer en el tiempo libre.
 
@@ -86,7 +86,7 @@ A diferencia de una web estática, este proyecto utiliza **Node.js** para gestio
 
 - **Ane Jauregui**
 - **Marcos Salinas**
-- **Frank Rocha**
+- **Dario Arenaza**
 - **Olatz Gonzalez**
 
 ---
