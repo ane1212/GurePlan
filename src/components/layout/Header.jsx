@@ -21,7 +21,7 @@ function Header() {
       <nav id="navbar">
         <div className="nav-left">
           <a href="index.html" className="nav-logo">
-            <img src="assets/img/planes.png" alt="Planes Fav logo" className="logo" />
+            <img src="../public/images/logo_GurePlan.png" alt="GurePlan" className="logo" />
           </a>
         </div>
 
