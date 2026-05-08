@@ -1,3 +1,8 @@
+/**
+ * @file CardWeather.jsx
+ * @description Componente para mostrar la información meteorológica de una ubicación específica.
+ */
+
 import React, { useState, useEffect } from "react";
 import {
     getLocalWeather,
@@ -7,6 +12,13 @@ import {
 
 /**
  * Componente CardWeather
+ * @component
+ * @param {Object} props - Propiedades del componente.
+ * @param {number} props.lat - Latitud de la ubicación.
+ * @param {number} props.lon - Longitud de la ubicación.
+ * @param {string} props.municipalityName - Nombre del municipio para mostrar en el título.
+ * @param {Function} [props.onWeatherLoad] - Callback que devuelve el icono del clima cargado.
+ * @returns {JSX.Element} Un contenedor con la temperatura, estado del cielo y velocidad del viento.
  */
 const CardWeather = ({ lat, lon, municipalityName, onWeatherLoad }) => {
     const [weather, setWeather] = useState(null);
@@ -15,14 +27,18 @@ const CardWeather = ({ lat, lon, municipalityName, onWeatherLoad }) => {
     const [lastUpdated, setLastUpdated] = useState("");
 
     useEffect(() => {
-        // Console log para ver qué coordenadas recibe (el usuario puede verlo en F12)
+        // Log informativo en consola para depuración
         console.log(`[CardWeather] Solicitando clima para: ${municipalityName} (${lat}, ${lon})`);
 
+        /**
+         * Función interna para recuperar los datos asíncronamente.
+         * @async
+         * @param {number} targetLat - Latitud objetivo.
+         * @param {number} targetLon - Longitud objetivo.
+         */
         const fetchData = async (targetLat, targetLon) => {
             try {
                 setLoading(true);
-                // Añadimos un timestamp a la petición interna si fuera necesario, 
-                // pero getLocalWeather ya hace un fetch.
                 const data = await getLocalWeather(targetLat, targetLon);
 
                 if (data) {

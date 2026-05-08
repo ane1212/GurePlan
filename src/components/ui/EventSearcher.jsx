@@ -1,11 +1,24 @@
+/**
+ * @file EventSearcher.jsx
+ * @description Componente principal para la búsqueda y filtrado de eventos culturales en Euskadi.
+ */
+
 import { useState, useEffect, useRef } from "react";
 import { events, municipalities, eventTypes } from "../../services/eventService";
 import CardEvent from '../ui/CardEvent';
 import CardWeather from './CardWeather';
 
+/** @constant {number} Latitud por defecto (Bilbao) */
 const DEFAULT_LAT = 43.2627;
-const DEFAULT_LON = -2.9253; // Bilbao
+/** @constant {number} Longitud por defecto (Bilbao) */
+const DEFAULT_LON = -2.9253;
 
+/**
+ * Componente EventSearcher
+ * @component
+ * @description Gestiona la interfaz de búsqueda, incluyendo filtros de municipio, tipo, fecha e idioma.
+ * También coordina la actualización de la información meteorológica basada en la selección del usuario.
+ */
 function EventSearcher() {
   const [municipalityList, setMunicipalityList] = useState([]);
   const [typeList, setTypeList] = useState([]);
@@ -28,6 +41,10 @@ function EventSearcher() {
     (m) => String(m.id) === selectedMunicipality
   )?.name || "Euskadi";
 
+  /**
+   * Maneja el cambio de selección de idiomas.
+   * @param {string} langCode - Código del idioma (ES, EU, EN).
+   */
   function handleLanguageChange(langCode) {
     setSelectedLanguages((prev) =>
       prev.includes(langCode)
@@ -38,6 +55,10 @@ function EventSearcher() {
 
   // 1. Carga inicial de municipios y tipos
   useEffect(() => {
+    /**
+     * Inicializa los datos de los selectores de búsqueda.
+     * @async
+     */
     async function init() {
       try {
         const allMunicipalities = await municipalities();
@@ -54,10 +75,15 @@ function EventSearcher() {
 
   // 2. Efecto de filtrado y actualización de clima
   useEffect(() => {
+    /**
+     * Aplica los filtros seleccionados y recupera los eventos de la API.
+     * También gestiona el posicionamiento geográfico para el componente del clima.
+     * @async
+     */
     async function applyFilters() {
       const municipalityId = selectedMunicipality !== "todos" ? selectedMunicipality : null;
 
-      // ACTUALIZACIÓN DEL CLIMA (Se hará después de cargar eventos si es un municipio específico)
+      // ACTUALIZACIÓN DEL CLIMA
       if (municipalityId === "todos") {
         setCurrentCoords({ lat: DEFAULT_LAT, lon: DEFAULT_LON });
       }

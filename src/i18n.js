@@ -1,7 +1,17 @@
+/**
+ * @file i18n.js
+ * @description Configuración de la internacionalización (i18n) para la aplicación GurePlan.
+ * Soporta Castellano (es), Inglés (en) y Euskera (eu).
+ */
+
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
 
+/**
+ * Recursos de traducción organizados por código de idioma.
+ * @constant {Object}
+ */
 const resources = {
     es: {
         translation: {

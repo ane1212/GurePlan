@@ -1,3 +1,8 @@
+/**
+ * @file App.jsx
+ * @description Componente raíz de la aplicación GurePlan. Gestiona el enrutamiento y el estado global del usuario.
+ */
+
 import { useState, useEffect } from 'react';
 import { Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -15,17 +20,29 @@ import CardEventDetails from './pages/CardEventDetails';
 // Styles
 import './App.css'
 
+/**
+ * Componente principal App
+ * @component
+ * @returns {JSX.Element} La estructura principal de la aplicación con navegación y rutas.
+ */
 function App() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
 
+  /** 
+   * Estado del usuario actual, inicializado desde localStorage.
+   * @type {Object|null}
+   */
   const [currentUser, setCurrentUser] = useState(() => {
     const stored = localStorage.getItem("currentUser");
     return stored ? JSON.parse(stored) : null;
   });
 
   useEffect(() => {
+    /**
+     * Sincroniza el estado del usuario si cambia en otra pestaña.
+     */
     const handleStorageChange = () => {
       const stored = localStorage.getItem("currentUser");
       setCurrentUser(stored ? JSON.parse(stored) : null);
@@ -34,6 +51,9 @@ function App() {
     return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
+  /**
+   * Cierra la sesión del usuario y redirige al inicio.
+   */
   function handleLogout() {
     localStorage.removeItem("currentUser");
     setCurrentUser(null);
@@ -79,7 +99,6 @@ function App() {
                   <h1>{t('welcome')}</h1>
                   <p>{t('description')}</p>
                 </div>
-                {/* He eliminado CardWeather de aquí para que solo salga el banner del buscador */}
               </section>
               <EventSearcher />
             </>
