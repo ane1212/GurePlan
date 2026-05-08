@@ -26,6 +26,7 @@ const CardWeather = ({ lat, lon, municipalityName, onWeatherLoad }) => {
                 const data = await getLocalWeather(targetLat, targetLon);
 
                 if (data) {
+                    console.log(`[CardWeather] Clima recibido:`, data);
                     setWeather(data);
                     const { icon } = getWeatherDescription(data.weathercode);
                     if (onWeatherLoad) onWeatherLoad(icon);
