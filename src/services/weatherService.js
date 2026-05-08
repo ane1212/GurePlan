@@ -21,19 +21,17 @@ export const WEATHER_ICONS = {
 
 /**
  * Mapea el código de Open-Meteo a descripción e icono.
- * @param {number} code - Código WMO.
- * @returns {{text: string, icon: string}}
  */
 export function getWeatherDescription(code) {
-    if (code === 0) return { text: "Despejado", icon: "sun" };
-    if (code <= 3) return { text: "Nublado", icon: "cloud_sun" };
+    if (code === 0) return { text: "Cielo despejado", icon: "sun" };
+    if (code >= 1 && code <= 3) return { text: "Parcialmente nublado", icon: "cloud_sun" };
     if (code >= 45 && code <= 48) return { text: "Niebla", icon: "fog" };
-    if (code >= 51 && code <= 57) return { text: "Llovizna", icon: "drizzle" };
+    if (code >= 51 && code <= 57) return { text: "Llovizna persistente", icon: "drizzle" };
     if (code >= 61 && code <= 67) return { text: "Lluvia", icon: "rain" };
     if (code >= 71 && code <= 77) return { text: "Nieve", icon: "snow" };
-    if (code >= 80 && code <= 82) return { text: "Chubascos", icon: "rain" };
-    if (code >= 95) return { text: "Tormenta", icon: "storm" };
-    return { text: "Variable", icon: "cloud" };
+    if (code >= 80 && code <= 82) return { text: "Chubascos de lluvia", icon: "rain" };
+    if (code >= 95) return { text: "Tormenta eléctrica", icon: "storm" };
+    return { text: "Nubes y claros", icon: "cloud" };
 }
 
 /**
@@ -41,14 +39,21 @@ export function getWeatherDescription(code) {
  */
 export const getLocalWeather = async (lat, lon) => {
     try {
-        const url = `${BASE_URL}?latitude=${lat}&longitude=${lon}&current_weather=true&timezone=auto&_=${new Date().getTime()}`;
+        // Usamos la API actual con el parámetro 'current' que es el recomendado ahora
+        const url = `${BASE_URL}?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&timezone=auto`;
         const response = await fetch(url);
         if (!response.ok) throw new Error('Error en la petición');
 
         const data = await response.json();
-        const { temperature, windspeed, weathercode, time } = data.current_weather;
+        const current = data.current;
 
-        return { temp: temperature, windspeed, weathercode, time };
+        return { 
+            temp: current.temperature_2m, 
+            windspeed: current.wind_speed_10m, 
+            weathercode: current.weather_code, 
+            humidity: current.relative_humidity_2m,
+            time: current.time 
+        };
     } catch (error) {
         console.error("Error en weatherService:", error);
         return null;
