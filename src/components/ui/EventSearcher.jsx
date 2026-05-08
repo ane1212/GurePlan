@@ -41,14 +41,6 @@ function EventSearcher() {
     async function init() {
       try {
         const allMunicipalities = await municipalities();
-        allMunicipalities.forEach((m) => {
-          if (m.lat && m.lon) {
-            municipalityCoords.current.set(String(m.id), {
-              lat: m.lat,
-              lon: m.lon,
-            });
-          }
-        });
         setMunicipalityList(allMunicipalities);
 
         const allTypes = await eventTypes();
@@ -65,39 +57,28 @@ function EventSearcher() {
     async function applyFilters() {
       const municipalityId = selectedMunicipality !== "todos" ? selectedMunicipality : null;
 
-      // ACTUALIZACIÓN DEL CLIMA
-      let coords = { lat: DEFAULT_LAT, lon: DEFAULT_LON };
-      if (municipalityId) {
-        const cached = municipalityCoords.current.get(municipalityId);
-        if (cached) {
-          coords = cached;
-        } else {
-          const found = municipalityList.find(m => String(m.id) === municipalityId);
-          if (found && found.lat && found.lon) {
-            coords = { lat: found.lat, lon: found.lon };
-          }
-        }
+      // ACTUALIZACIÓN DEL CLIMA (Se hará después de cargar eventos si es un municipio específico)
+      if (municipalityId === "todos") {
+        setCurrentCoords({ lat: DEFAULT_LAT, lon: DEFAULT_LON });
       }
-      setCurrentCoords(coords);
 
       // CARGA DE EVENTOS
       setLoading(true);
-
-      let day = null, month = null, year = null;
-      if (selectedDate) {
-        const [y, m, d] = selectedDate.split("-");
-        day = parseInt(d); month = parseInt(m); year = parseInt(y);
-      }
-
-      const type = selectedType !== "todos" ? selectedType : null;
-
       try {
+        let day = null, month = null, year = null;
+        if (selectedDate) {
+          const [y, m, d] = selectedDate.split("-");
+          day = parseInt(d); month = parseInt(m); year = parseInt(y);
+        }
+
+        const type = selectedType !== "todos" ? selectedType : null;
+
         const results = await events({
           elements: 30,
           page: 1,
           day,
           month,
-          municipalityId,
+          municipalityId: municipalityId === "todos" ? null : municipalityId,
           type,
           year,
         });
@@ -109,6 +90,28 @@ function EventSearcher() {
           );
         }
         setEventList(filteredResults);
+
+        // Si hemos encontrado eventos y el municipio no tenía coordenadas, las extraemos del primer evento
+        if (filteredResults.length > 0 && municipalityId && municipalityId !== "todos") {
+          const firstEvent = filteredResults[0];
+          if (firstEvent.lat && firstEvent.lon) {
+            setCurrentCoords({ lat: firstEvent.lat, lon: firstEvent.lon });
+          }
+        } else if (municipalityId && municipalityId !== "todos") {
+          // FALLBACK: Si no hay eventos, buscamos las coordenadas por el nombre del municipio
+          try {
+            const geoRes = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(selectedMunicipalityName)}&count=1&language=es&format=json`);
+            const geoData = await geoRes.json();
+            if (geoData.results && geoData.results.length > 0) {
+              const { latitude, longitude } = geoData.results[0];
+              setCurrentCoords({ lat: latitude, lon: longitude });
+            }
+          } catch (err) {
+            console.error("Error en geocoding fallback:", err);
+          }
+        } else if (municipalityId === "todos") {
+          setCurrentCoords({ lat: DEFAULT_LAT, lon: DEFAULT_LON });
+        }
       } catch (error) {
         console.error("Error cargando eventos:", error);
       } finally {
