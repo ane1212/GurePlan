@@ -1,30 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import { events, municipalities, eventTypes } from "../services/eventService";
-import { getLocalWeather, isBadWeather } from "../services/weatherService";
-import CardEvent from '../ui/CardEvent'
+import CardEvent from '../ui/CardEvent';
+import CardWeather from './CardWeather';
 
-const DEFAULT_LAT = 43.263;
-const DEFAULT_LON = -2.935;
-
-const INDOOR_TYPES = [
-  "teatro",
-  "cine",
-  "exposición",
-  "exposicion",
-  "música",
-  "musica",
-  "conferencia",
-  "danza",
-  "ópera",
-  "opera",
-  "circo",
-  "infantil",
-];
-
-function isIndoor(event) {
-  if (!event.type) return false;
-  return INDOOR_TYPES.some((t) => event.type.toLowerCase().includes(t));
-}
+const DEFAULT_LAT = 43.2627;
+const DEFAULT_LON = -2.9253; // Bilbao
 
 function EventSearcher() {
   const [municipalityList, setMunicipalityList] = useState([]);
@@ -37,12 +17,16 @@ function EventSearcher() {
   );
 
   const [eventList, setEventList] = useState([]);
-  const [weatherData, setWeatherData] = useState(null);
-  const [weatherBanner, setWeatherBanner] = useState("good");
+  const [currentCoords, setCurrentCoords] = useState({ lat: DEFAULT_LAT, lon: DEFAULT_LON });
   const [loading, setLoading] = useState(false);
   const [selectedLanguages, setSelectedLanguages] = useState([]);
 
   const municipalityCoords = useRef(new Map());
+
+  // Nombre del municipio para mostrar en el CardWeather
+  const selectedMunicipalityName = municipalityList.find(
+    (m) => String(m.id) === selectedMunicipality
+  )?.name || "Euskadi";
 
   function handleLanguageChange(langCode) {
     setSelectedLanguages((prev) =>
@@ -52,111 +36,91 @@ function EventSearcher() {
     );
   }
 
+  // 1. Carga inicial de municipios y tipos
   useEffect(() => {
     async function init() {
-      const allMunicipalities = await municipalities();
+      try {
+        const allMunicipalities = await municipalities();
+        allMunicipalities.forEach((m) => {
+          if (m.lat && m.lon) {
+            municipalityCoords.current.set(String(m.id), {
+              lat: m.lat,
+              lon: m.lon,
+            });
+          }
+        });
+        setMunicipalityList(allMunicipalities);
 
-      allMunicipalities.forEach((m) => {
-        if (m.lat && m.lon) {
-          municipalityCoords.current.set(String(m.id), {
-            lat: m.lat,
-            lon: m.lon,
-          });
-        }
-      });
-
-      const bilbao = allMunicipalities.find(
-        (m) => m.name?.toLowerCase() === "bilbao",
-      );
-      const ordered = [
-        ...(bilbao ? [bilbao] : []),
-        ...allMunicipalities.filter((m) => !bilbao || m.id !== bilbao.id),
-      ];
-      setMunicipalityList(ordered);
-
-      const allTypes = await eventTypes();
-      setTypeList(allTypes);
+        const allTypes = await eventTypes();
+        setTypeList(allTypes);
+      } catch (error) {
+        console.error("Error en init:", error);
+      }
     }
-
     init();
   }, []);
 
+  // 2. Efecto de filtrado y actualización de clima
   useEffect(() => {
     async function applyFilters() {
+      const municipalityId = selectedMunicipality !== "todos" ? selectedMunicipality : null;
+
+      // ACTUALIZACIÓN DEL CLIMA
+      let coords = { lat: DEFAULT_LAT, lon: DEFAULT_LON };
+      if (municipalityId) {
+        const cached = municipalityCoords.current.get(municipalityId);
+        if (cached) {
+          coords = cached;
+        } else {
+          const found = municipalityList.find(m => String(m.id) === municipalityId);
+          if (found && found.lat && found.lon) {
+            coords = { lat: found.lat, lon: found.lon };
+          }
+        }
+      }
+      setCurrentCoords(coords);
+
+      // CARGA DE EVENTOS
       setLoading(true);
 
-      let day = null,
-        month = null,
-        year = null;
+      let day = null, month = null, year = null;
       if (selectedDate) {
         const [y, m, d] = selectedDate.split("-");
-        day = parseInt(d);
-        month = parseInt(m);
-        year = parseInt(y);
+        day = parseInt(d); month = parseInt(m); year = parseInt(y);
       }
 
-      const municipalityId =
-        selectedMunicipality !== "todos" ? selectedMunicipality : null;
       const type = selectedType !== "todos" ? selectedType : null;
 
-      // FIX: Passing an object as expected by the service
-      const results = await events({
-        elements: 30,
-        page: 1,
-        day,
-        month,
-        municipalityId,
-        type,
-        year,
-      });
+      try {
+        const results = await events({
+          elements: 30,
+          page: 1,
+          day,
+          month,
+          municipalityId,
+          type,
+          year,
+        });
 
-      let weather = null;
-      if (municipalityId && municipalityCoords.current.has(municipalityId)) {
-        const { lat, lon } = municipalityCoords.current.get(municipalityId);
-        weather = await getLocalWeather(lat, lon);
-      } else if (results.length > 0 && results[0].lat && results[0].lon) {
-        weather = await getLocalWeather(results[0].lat, results[0].lon);
-      } else {
-        weather = await getLocalWeather(DEFAULT_LAT, DEFAULT_LON);
-      }
-
-      setWeatherData(weather);
-
-      let filteredResults = results;
-      if (selectedLanguages.length > 0) {
-        filteredResults = results.filter(
-          (e) => e.language && selectedLanguages.includes(e.language.toUpperCase()),
-        );
-      }
-
-      const weatherCode = weather?.weathercode ?? null;
-      if (isBadWeather(weatherCode) && type === null) {
-        const indoorResults = filteredResults.filter((e) => isIndoor(e));
-        if (indoorResults.length > 0) {
-          setEventList(indoorResults);
-          setWeatherBanner("bad");
-        } else {
-          setEventList(filteredResults);
-          setWeatherBanner("bad-no-indoor");
+        let filteredResults = results;
+        if (selectedLanguages.length > 0) {
+          filteredResults = results.filter(
+            (e) => e.language && selectedLanguages.includes(e.language.toUpperCase()),
+          );
         }
-      } else {
         setEventList(filteredResults);
-        setWeatherBanner("good");
+      } catch (error) {
+        console.error("Error cargando eventos:", error);
+      } finally {
+        setLoading(false);
       }
-
-      setLoading(false);
     }
 
     applyFilters();
-  }, [selectedMunicipality, selectedType, selectedDate, selectedLanguages]);
+  }, [selectedMunicipality, selectedType, selectedDate, selectedLanguages, municipalityList]);
 
   return (
     <section className="event-searcher-container">
-      <header className="searcher-header">
-        <h1>Descubre Planes en Euskadi</h1>
-        <p>Encuentra los mejores eventos culturales cerca de ti</p>
-      </header>
-
       <div className="searcher-main">
         <aside className="filters-sidebar">
           <div className="filter-group">
@@ -223,37 +187,13 @@ function EventSearcher() {
         </aside>
 
         <main className="results-content">
-          <div className="weather-status">
-            {weatherBanner === "bad" && (
-              <div className="banner banner--bad">
-                <i className="icon-warning">☔</i>
-                <div>
-                  <strong>Día lluvioso</strong>
-                  <p>Te recomendamos planes de interior (teatro, cine, expos...)</p>
-                </div>
-              </div>
-            )}
-            {weatherBanner === "bad-no-indoor" && (
-              <div className="banner banner--bad">
-                <i className="icon-warning">☔</i>
-                <div>
-                  <strong>Día lluvioso</strong>
-                  <p>No hay planes de interior hoy, ¡lleva paraguas!</p>
-                </div>
-              </div>
-            )}
-            {weatherBanner === "good" && (
-              <div className="banner banner--good">
-                <i className="icon-success"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" />
-                </svg>
-                </i>
-                <div>
-                  <strong>¡Buen tiempo!</strong>
-                  <p>Disfruta de cualquier plan hoy.</p>
-                </div>
-              </div>
-            )}
+          <div className="weather-container-top" style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '2rem' }}>
+            <CardWeather
+              key={`${currentCoords.lat}-${currentCoords.lon}-${selectedMunicipality}`}
+              lat={currentCoords.lat}
+              lon={currentCoords.lon}
+              municipalityName={selectedMunicipalityName}
+            />
           </div>
 
           <div className="events-grid">

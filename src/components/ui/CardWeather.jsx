@@ -7,31 +7,30 @@ import {
 
 /**
  * Componente CardWeather
- * Muestra la información climática obtenida a través de weatherService.
- *
- * @param {Object} props
- * @param {Function} props.onWeatherLoad - Callback para enviar la clase del clima (icon) al padre.
  */
-const CardWeather = ({ onWeatherLoad }) => {
+const CardWeather = ({ lat, lon, municipalityName, onWeatherLoad }) => {
   const [weather, setWeather] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState("");
 
   useEffect(() => {
-    /**
-     * Llama al servicio para obtener los datos climáticos procesados.
-     */
-    const fetchData = async (lat, lon) => {
+    // Console log para ver qué coordenadas recibe (el usuario puede verlo en F12)
+    console.log(`[CardWeather] Solicitando clima para: ${municipalityName} (${lat}, ${lon})`);
+
+    const fetchData = async (targetLat, targetLon) => {
       try {
         setLoading(true);
-        const data = await getLocalWeather(lat, lon);
+        // Añadimos un timestamp a la petición interna si fuera necesario, 
+        // pero getLocalWeather ya hace un fetch.
+        const data = await getLocalWeather(targetLat, targetLon);
 
         if (data) {
           setWeather(data);
           const { icon } = getWeatherDescription(data.weathercode);
-
           if (onWeatherLoad) onWeatherLoad(icon);
           setError(false);
+          setLastUpdated(new Date().toLocaleTimeString());
         } else {
           setError(true);
         }
@@ -43,18 +42,13 @@ const CardWeather = ({ onWeatherLoad }) => {
       }
     };
 
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => fetchData(pos.coords.latitude, pos.coords.longitude),
-        () => fetchData(43.2627, -2.9253),
-      );
-    } else {
-      fetchData(43.2627, -2.9253);
+    if (lat !== undefined && lon !== undefined) {
+      fetchData(lat, lon);
     }
-  }, [onWeatherLoad]);
+  }, [lat, lon, municipalityName]); // Sensible a cambios en nombre y coordenadas
 
   if (loading)
-    return <div className="card-weather loading">Cargando clima...</div>;
+    return <div className="card-weather loading">Actualizando clima...</div>;
   if (error || !weather)
     return <div className="card-weather error">Clima no disponible</div>;
 
@@ -63,12 +57,19 @@ const CardWeather = ({ onWeatherLoad }) => {
   return (
     <div className={`card-weather ${icon}`}>
       <div className="weather-info">
-        <div
-          className="weather-icon"
-          dangerouslySetInnerHTML={{ __html: WEATHER_ICONS[icon] }}
-        />
-
-        <h3>{text}</h3>
+        <div className="weather-header" style={{ marginBottom: '1rem' }}>
+          <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 'bold' }}>
+            Clima en {municipalityName || 'Euskadi'}
+          </span>
+        </div>
+        
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <div
+            className="weather-icon"
+            dangerouslySetInnerHTML={{ __html: WEATHER_ICONS[icon] }}
+          />
+          <h3>{text}</h3>
+        </div>
 
         <div className="weather-stats">
           <p>
@@ -77,11 +78,12 @@ const CardWeather = ({ onWeatherLoad }) => {
           <p>
             <strong>Viento:</strong> {weather.windspeed} km/h
           </p>
-          <p>
-            <small>
-              Hora: {weather.time ? weather.time.split("T")[1] : "--:--"}
+        </div>
+        
+        <div style={{ marginTop: '1rem', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '0.5rem' }}>
+            <small style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>
+                Actualizado: {lastUpdated}
             </small>
-          </p>
         </div>
       </div>
     </div>

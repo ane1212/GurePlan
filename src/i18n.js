@@ -1,51 +1,61 @@
-/**
-* @file i18n.js
-* @description Configuración central de internacionalización (i18n) para el proyecto
-React.
-* Utiliza i18next y react-i18next con soporte para Castellano, Euskera e Inglés.
-*/
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
-/**
-* @typedef {Object} TranslationResource
-* @property {Object} translation - Objeto que contiene los pares clave-valor de las
-traducciones.
-*/
-/**
-* @type {Object.}
-* Diccionario de recursos de traducción.
-*/
+
 const resources = {
     es: {
         translation: {
-            "welcome": "Bienvenido a nuestro proyecto",
-            "description": "Esta es una aplicación React con soporte multiidioma.",
-            "change_to": "Cambiar idioma",
+            "welcome": "Descubre Planes en Euskadi",
+            "description": "Encuentra los mejores eventos culturales cerca de ti",
             "home": "Inicio",
-            "contact": "Contacto"
-
+            "favorites": "Favoritos",
+            "about": "Acerca de",
+            "login": "Entrar",
+            "logout": "Salir",
+            "contact": "Contacto",
+            "municipality": "Municipio",
+            "event_type": "Tipo de Evento",
+            "date": "Fecha",
+            "languages": "Idiomas",
+            "all": "Todos"
         }
     },
     en: {
         translation: {
-            "welcome": "Welcome to our project",
-            "description": "This is a React application with multi-language support.",
-            "change_to": "Change language",
+            "welcome": "Discover Plans in Euskadi",
+            "description": "Find the best cultural events near you",
             "home": "Home",
-            "contact": "Contact"
+            "favorites": "Favorites",
+            "about": "About Us",
+            "login": "Login",
+            "logout": "Logout",
+            "contact": "Contact",
+            "municipality": "Municipality",
+            "event_type": "Event Type",
+            "date": "Date",
+            "languages": "Languages",
+            "all": "All"
         }
     },
     eu: {
         translation: {
-            "welcome": "Ongi etorri gure proiektura",
-            "description": "Hau hizkuntza anitzeko euskarria duen React aplikazioa da.",
-            "change_to": "Hizkuntza aldatu",
+            "welcome": "GurePlanak Euskadin",
+            "description": "Aurkitu zure inguruko kultur ekitaldirik onenak",
             "home": "Hasiera",
-            "contact": "Kontaktua"
+            "favorites": "Gogokoak",
+            "about": "Guri buruz",
+            "login": "Sartu",
+            "logout": "Irten",
+            "contact": "Kontaktua",
+            "municipality": "Udalerria",
+            "event_type": "Ekitaldi Mota",
+            "date": "Data",
+            "languages": "Hizkuntzak",
+            "all": "Guztiak"
         }
     }
 };
+
 i18n
     .use(LanguageDetector)
     .use(initReactI18next)
@@ -53,7 +63,8 @@ i18n
         resources,
         fallbackLng: 'es',
         interpolation: {
-            escapeValue: false // React ya protege contra ataques XSS
+            escapeValue: false
         }
     });
+
 export default i18n;
