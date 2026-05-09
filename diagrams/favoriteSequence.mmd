@@ -1,0 +1,37 @@
+sequenceDiagram
+    actor Usuario
+    participant UI as Interfaz (React)
+    participant LS as localStorageService
+    participant Auth as Sesión Local
+ 
+    Usuario->>UI: Hace clic en "Guardar favorito"
+    UI->>Auth: Comprueba sesión activa
+    alt Sin sesión activa
+        Auth-->>UI: No autenticado
+        UI-->>Usuario: Redirige a /login
+        Usuario->>UI: Introduce credenciales
+        UI->>Auth: Registra sesión en localStorage
+        Auth-->>UI: Sesión iniciada
+    end
+    UI->>LS: saveFavorite(eventId, userId)
+    LS->>LS: Lee lista actual de favoritos
+    alt Evento ya guardado
+        LS-->>UI: Favorito ya existe
+        UI-->>Usuario: Muestra aviso "Ya en favoritos"
+    else Evento nuevo
+        LS->>LS: Añade evento a la lista
+        LS-->>UI: Favorito guardado correctamente
+        UI-->>Usuario: Icono cambia a "guardado" ✓
+    end
+ 
+    Usuario->>UI: Navega a /favorites
+    UI->>LS: getFavorites(userId)
+    LS-->>UI: Lista de IDs de eventos favoritos
+    UI->>UI: Renderiza tarjetas de eventos favoritos
+    UI-->>Usuario: Muestra sección "Mis Favoritos"
+ 
+    Usuario->>UI: Hace clic en "Eliminar favorito"
+    UI->>LS: removeFavorite(eventId, userId)
+    LS->>LS: Filtra y actualiza lista
+    LS-->>UI: Favorito eliminado
+    UI-->>Usuario: Tarjeta desaparece de la lista
