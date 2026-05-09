@@ -1,0 +1,50 @@
+sequenceDiagram
+    actor Usuario
+    participant Nav as Barra de Navegación
+    participant App as App.jsx (Router)
+    participant ES as eventService
+    participant WS as weatherService
+    participant ODE as Open Data Euskadi API
+    participant OM as Open-Meteo API
+    participant LS as localStorageService
+ 
+    Usuario->>Nav: Accede a GurePlan (/)
+    Nav->>App: Renderiza ruta raíz
+    App->>ES: fetchProvinces()
+    ES->>ODE: GET /provincias
+    ODE-->>ES: Lista de provincias
+    ES-->>App: [Álava, Gipuzkoa, Bizkaia]
+    App-->>Usuario: Muestra buscador con filtros
+ 
+    Usuario->>App: Selecciona provincia + municipio
+    App->>ES: fetchMunicipalities(provinciaId)
+    ES->>ODE: GET /municipios?provincia=X
+    ODE-->>ES: Lista de municipios
+    ES-->>App: Municipios disponibles
+    App->>ES: fetchEvents(filtros)
+    ES->>ODE: GET /eventos?municipio=Y&tipo=Z
+    ODE-->>ES: Listado de eventos (JSON)
+    ES-->>App: [APIEvent, APIEvent, ...]
+    App-->>Usuario: Renderiza tarjetas de eventos
+ 
+    Usuario->>App: Hace clic en una tarjeta
+    App->>App: Navega a /event/:id
+    App->>ES: fetchEventById(id)
+    ES->>ODE: GET /evento/:id
+    ODE-->>ES: Detalle del evento (coords incluidas)
+    ES-->>App: APIEvent con latitud/longitud
+    App->>WS: fetchWeather(lat, lon)
+    WS->>OM: GET /forecast?lat=X&lon=Y
+    OM-->>WS: Datos meteorológicos (código WMO)
+    WS-->>App: APIWeather (icono + descripción)
+    App-->>Usuario: Muestra detalle + clima en tiempo real
+ 
+    Usuario->>Nav: Cambia idioma (ES/EU/EN)
+    Nav->>App: i18n.changeLanguage(lang)
+    App->>LS: savePreference("lang", lang)
+    App-->>Usuario: Interfaz traducida al instante
+ 
+    Usuario->>Nav: Hace clic en "Favoritos"
+    App->>LS: getFavorites(userId)
+    LS-->>App: Lista de eventos guardados
+    App-->>Usuario: Renderiza /favorites con sus planes
