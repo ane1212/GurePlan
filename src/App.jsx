@@ -26,7 +26,7 @@ function App() {
 
   return (
     <>
-      <h1>GurePlan</h1>
+      {/* <h1>GurePlan</h1> */}
       <EventSearcher />
       <CardWeather onWeatherLoad={(condition) => console.log('Clima cargado:', condition)} />
       <div className="App">

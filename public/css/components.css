@@ -688,6 +688,12 @@ header h1 {
   box-shadow: var(--shadow-sm);
 }
 
+@media (max-width: 768px) {
+  .filters {
+    align-items: center;
+  }
+}
+
 /* Selects: municipio y tipo */
 label {
   font-size: var(--text-sm);
@@ -893,6 +899,14 @@ label {
   box-shadow: var(--shadow-sm);
 }
 
+@media (max-width: 480px) {
+  .card-weather {
+    padding: var(--space-4);
+    margin: 0 var(--container-px);
+    width: calc(100% - 2 * var(--container-px));
+  }
+}
+
 /* Modificadores por condición meteorológica */
 .card-weather.sunny {
   background: linear-gradient(135deg, #1A4A6E 0%, #2A7AB5 100%);
@@ -1094,7 +1108,7 @@ label {
 .card-date {
   font-size: var(--text-sm);
   font-weight: var(--weight-bold);
-  color: var(--color-accent);       /* 4.6:1 ✓ AA */
+  color: var(--color-primary);
   max-width: none;
   margin: 0;
 }
