@@ -173,6 +173,14 @@ input[aria-invalid="true"] {
   display: block;
 }
 
+a.nav-logo {
+  display: flex;
+  flex-direction: row;
+  text-decoration: none;
+  align-items: center;
+  font-weight: var(--weight-bold);
+}
+
 /* Links de navegación */
 .nav-links {
   display: flex;
@@ -184,7 +192,8 @@ input[aria-invalid="true"] {
   padding: var(--space-2) var(--space-3);
   font-size: var(--text-sm);
   font-weight: var(--weight-regular);
-  color: rgba(255, 255, 255, 0.78); /* ~10:1 sobre navy ✓ AA */
+  color: var(--color-accent);
+  font-weight: var(--weight-bold);
   text-decoration: none;
   border-radius: var(--radius-md);
   transition:
@@ -347,6 +356,18 @@ input[aria-invalid="true"] {
 }
 
 /* Cabecera: badge + título + precio */
+
+header {
+  margin-bottom: var(--space-5);
+}
+
+header h1 {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-regular);
+  color: var(--color-accent);
+  font-family: var(--font-body);
+}
+
 .details-header {
   display: flex;
   align-items: flex-start;
@@ -559,7 +580,7 @@ input[aria-invalid="true"] {
 @media (max-width: 768px) {
   /* Header */
   .nav-links {
-    display: none;  /* menú mobile: implementar con estado React si se necesita */
+    display: none;
   }
 
   #navbar {
@@ -591,7 +612,27 @@ input[aria-invalid="true"] {
 
   /* Language selector */
   .language-selector > span {
-    display: none;  /* ocultar label en mobile para ahorrar espacio */
+    display: none;
+  }
+
+  /* EventSearcher */
+  .filters {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  #municipalities-container,
+  #type-container {
+    min-width: 0;
+  }
+
+  #language-filter {
+    gap: var(--space-4);
+  }
+
+  /* CardWeather */
+  .weather-info {
+    gap: var(--space-4);
   }
 }
 
@@ -609,4 +650,528 @@ input[aria-invalid="true"] {
   .details-content {
     gap: var(--space-5);
   }
+
+  /* EventSearcher */
+  .pagination {
+    gap: var(--space-2);
+  }
+
+  .pagination button {
+    padding: var(--space-2) var(--space-4);
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   11. EVENT SEARCHER  ›  .event-searcher
+   ───────────────────────────────────────────────────────────── */
+
+.event-searcher {
+  max-width: var(--container-max);
+  margin-inline: auto;
+  padding: var(--space-6) var(--container-px);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+/* Barra de filtros */
+.filters {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4) var(--space-5);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Selects: municipio y tipo */
+#municipalities-container,
+#type-container {
+  flex: 1;
+  min-width: 160px;
+}
+
+#municipalities-container select,
+#type-container select {
+  width: 100%;
+  padding: var(--space-2) var(--space-4);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-regular);
+  color: var(--color-text-primary);
+  background-color: var(--color-surface);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%235E6A87' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right var(--space-3) center;
+  padding-right: var(--space-8);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  appearance: none;
+  transition:
+    border-color var(--transition-fast),
+    box-shadow   var(--transition-fast);
+}
+
+#municipalities-container select:hover,
+#type-container select:hover {
+  border-color: var(--color-border-strong);
+}
+
+#municipalities-container select:focus,
+#type-container select:focus {
+  outline: none;
+  border-color: var(--color-border-focus);
+  box-shadow: 0 0 0 3px rgba(217, 94, 0, 0.18);
+}
+
+/* Filtro de fecha */
+#date-filter input[type="date"] {
+  padding: var(--space-2) var(--space-4);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--color-text-primary);
+  background-color: var(--color-surface);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  appearance: none;
+  transition:
+    border-color var(--transition-fast),
+    box-shadow   var(--transition-fast);
+}
+
+#date-filter input[type="date"]:focus {
+  outline: none;
+  border-color: var(--color-border-focus);
+  box-shadow: 0 0 0 3px rgba(217, 94, 0, 0.18);
+}
+
+/* Filtro de idioma: checkboxes */
+#language-filter {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+#language-filter label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  user-select: none;
+}
+
+#language-filter input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--color-accent);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* Banner de clima */
+.weather-banner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-5);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  border: 1px solid transparent;
+}
+
+.weather-banner--good {
+  background-color: var(--color-success-bg);
+  color: var(--color-success);       /* 4.6:1 ✓ AA */
+  border-color: rgba(26, 122, 74, 0.20);
+}
+
+.weather-banner--bad {
+  background-color: var(--color-info-bg);
+  color: var(--color-info);          /* 5.1:1 ✓ AA */
+  border-color: rgba(10, 90, 160, 0.20);
+}
+
+/* Contenedor de resultados (vista lista) */
+#view-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+#view-container p {
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--text-base);
+  color: var(--color-text-primary);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  max-width: none;
+  margin: 0;
+  cursor: pointer;
+  transition:
+    background-color var(--transition-fast),
+    border-color     var(--transition-fast);
+}
+
+#view-container p:hover {
+  background-color: var(--color-bg-alt);
+  border-color: var(--color-border-strong);
+}
+
+/* Paginación */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+}
+
+.pagination button {
+  padding: var(--space-2) var(--space-5);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  color: var(--color-text-inverse);
+  background-color: var(--color-primary);
+  border: 2px solid var(--color-primary);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition:
+    background-color var(--transition-fast),
+    opacity          var(--transition-fast);
+}
+
+.pagination button:hover:not(:disabled) {
+  background-color: var(--color-primary-dark);
+  border-color: var(--color-primary-dark);
+}
+
+.pagination button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.pagination span {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  color: var(--color-text-secondary);
+  padding: var(--space-2) var(--space-3);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   12. CARD WEATHER  ›  .card-weather
+   ───────────────────────────────────────────────────────────── */
+
+.card-weather {
+  max-width: var(--container-max);
+  margin-inline: auto;
+  margin-block: var(--space-2);
+  padding: var(--space-5) var(--container-px);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
+  color: var(--color-text-inverse);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Modificadores por condición meteorológica */
+.card-weather.sunny {
+  background: linear-gradient(135deg, #1A4A6E 0%, #2A7AB5 100%);
+}
+
+.card-weather.cloud_sun {
+  background: linear-gradient(135deg, #1E3A5F 0%, #3D6A94 100%);
+}
+
+.card-weather.cloudy {
+  background: linear-gradient(135deg, #2D3748 0%, #4A5568 100%);
+}
+
+.card-weather.rain {
+  background: linear-gradient(135deg, #1A2F4A 0%, #2C4A6E 100%);
+}
+
+.card-weather.storm {
+  background: linear-gradient(135deg, #1A1A2E 0%, #2D2D44 100%);
+}
+
+.card-weather.snow {
+  background: linear-gradient(135deg, #2A3F55 0%, #4A6A85 100%);
+}
+
+.weather-info {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+  flex-wrap: wrap;
+}
+
+.weather-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  color: var(--color-accent-light);
+}
+
+.weather-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.card-weather h3 {
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  font-weight: var(--weight-bold);
+  color: var(--color-text-inverse);
+  margin-bottom: var(--space-2);
+}
+
+.weather-stats {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.weather-stats p {
+  font-size: var(--text-sm);
+  color: rgba(255, 255, 255, 0.85);  /* ~12:1 sobre navy ✓ AA */
+  max-width: none;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.weather-stats small {
+  font-size: var(--text-sm);
+  color: rgba(255, 255, 255, 0.65);  /* ~8:1 sobre navy ✓ AA */
+}
+
+/* ─────────────────────────────────────────────────────────────
+   13. CARD EVENT  ›  .card
+   ───────────────────────────────────────────────────────────── */
+
+.card {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow-sm);
+  transition:
+    transform   var(--transition-base),
+    box-shadow  var(--transition-base);
+  max-width: 300px;
+  margin-bottom: var(--space-4);
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Cabecera de la card: imagen + badge + favorito */
+.card-header {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background-color: var(--color-bg-alt);
+  flex-shrink: 0;
+}
+
+.card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform var(--transition-base);
+}
+
+.card:hover .card-img {
+  transform: scale(1.04);
+}
+
+/* Botón de favorito */
+.icon-fav {
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-3);
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(255, 255, 255, 0.92);
+  border: none;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  color: var(--color-text-muted);
+  transform: scale(1);
+  transition: transform 0.1s ease, color var(--transition-fast), background-color var(--transition-fast);
+}
+
+.icon-fav svg {
+  width: 18px;
+  height: 18px;
+}
+
+.icon-fav:hover {
+  background-color: var(--color-surface);
+  color: var(--color-error);
+  transform: scale(1.15);
+}
+
+.icon-fav.active,
+.icon-fav[aria-pressed="true"] {
+  color: var(--color-error);
+}
+
+/* Badge de tipo dentro de .card-header */
+.card-header .type-badge {
+  position: absolute;
+  bottom: var(--space-3);
+  left: var(--space-3);
+  margin-bottom: 0;
+}
+
+/* Cuerpo de la card */
+.card-content {
+  padding: var(--space-4) var(--space-5);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.content-top {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.card-title {
+  font-family: var(--font-display);
+  font-size: calc(var(--text-display) * 0.50);
+  font-weight: var(--weight-regular);
+  color: var(--color-text-primary);
+  line-height: 1.25;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.card-location {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  max-width: none;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.card-date {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  color: var(--color-accent);       /* 4.6:1 ✓ AA */
+  max-width: none;
+  margin: 0;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   14. FOOTER  ›  footer (sin clase) y .main-footer
+   ───────────────────────────────────────────────────────────── */
+
+/* Versión simple del HTML renderizado (sin className) */
+footer {
+  background-color: var(--color-primary-dark);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  margin-top: auto;
+}
+
+footer > p {
+  max-width: var(--container-max);
+  margin-inline: auto;
+  padding: var(--space-5) var(--container-px);
+  font-size: var(--text-sm);
+  color: rgba(255, 255, 255, 0.55);  /* ~7:1 sobre #071228 ✓ AA */
+}
+
+footer p:first-child {
+  padding-bottom: 0;
+}
+
+footer a {
+  color: rgba(255, 255, 255, 0.70);  /* ~9:1 ✓ AA */
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+footer a:hover {
+  color: var(--color-text-inverse);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   15. APP MAIN  ›  .App y .contact-btn
+   ───────────────────────────────────────────────────────────── */
+
+.App {
+  max-width: var(--container-max);
+  margin-inline: auto;
+  padding-inline: var(--container-px);
+}
+
+/* <main> tenía inline style padding:20px; text-align:center — movido aquí */
+.App main {
+  padding: var(--space-5);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-5);
+}
+
+.App main h1 {
+  font-size: var(--text-display);
+}
+
+.App main p {
+  max-width: 55ch;
+  margin: 0;
+}
+
+/* Botón de contacto */
+.contact-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-3) var(--space-8);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  font-weight: var(--weight-bold);
+  color: var(--color-text-inverse);
+  background-color: var(--color-accent);
+  border: 2px solid var(--color-accent);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  text-decoration: none;
+  transition:
+    background-color var(--transition-fast),
+    box-shadow       var(--transition-fast);
+}
+
+.contact-btn:hover {
+  background-color: var(--color-accent-dark);
+  border-color: var(--color-accent-dark);
+  box-shadow: var(--shadow-sm);
 }

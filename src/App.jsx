@@ -32,7 +32,7 @@ function App() {
       <div className="App">
         <LanguageSelector />
 
-        <main style={{ padding: '20px', textAlign: 'center' }}>
+        <main>
           <h1>{t('welcome')}</h1>
           <p>{t('description')}</p>
 

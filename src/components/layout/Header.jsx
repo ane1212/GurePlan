@@ -20,9 +20,12 @@ function Header() {
     <header>
       <nav id="navbar">
         <div className="nav-left">
-          <a href="index.html" className="nav-logo">
-            <img src="../public/images/logo_GurePlan.png" alt="GurePlan" className="logo" />
-          </a>
+          <h1>
+            <a href="index.html" className="nav-logo">
+              <img src="../images/logo_GurePlan.png" alt="GurePlan" className="logo" />
+              GurePlan
+            </a>
+          </h1>
         </div>
 
         <div className="nav-links">
