@@ -33,7 +33,7 @@ function App() {
         <LanguageSelector />
 
         <main>
-          <h1>{t('welcome')}</h1>
+          <h2>{t('welcome')}</h2>
           <p>{t('description')}</p>
 
           <button className="contact-btn">

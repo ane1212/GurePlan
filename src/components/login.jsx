@@ -87,7 +87,7 @@ const Auth = () => {
             ¿No tienes cuenta?{" "}
             <span
               onClick={() => setIsLogin(false)}
-              style={{ cursor: "pointer", color: "blue" }}
+              style={{ cursor: "pointer"}}
             >
               Regístrate
             </span>
@@ -130,7 +130,7 @@ const Auth = () => {
           />
 
           {error && (
-            <p style={{ color: "red" }}>Las contraseñas no coinciden</p>
+            <p>Las contraseñas no coinciden</p>
           )}
 
           <button type="submit">Registrarse</button>

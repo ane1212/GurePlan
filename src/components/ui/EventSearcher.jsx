@@ -204,6 +204,7 @@ function EventSearcher() {
 
         {/* Filtro de municipio */}
         <div id="municipalities-container">
+          <label htmlFor="municipality-select">Municipio:</label>
           <select
             value={selectedMunicipality}
             onChange={e => setSelectedMunicipality(e.target.value)}
@@ -219,6 +220,7 @@ function EventSearcher() {
 
         {/* Filtro de tipo de evento */}
         <div id="type-container">
+          <label htmlFor="type-select">Tipo de evento:</label>
           <select
             value={selectedType}
             onChange={e => setSelectedType(e.target.value)}
@@ -234,6 +236,7 @@ function EventSearcher() {
 
         {/* Filtro de fecha */}
         <div id="date-filter">
+          <label htmlFor="date-input">Fecha:</label>
           <input
             type="date"
             value={selectedDate}
