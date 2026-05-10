@@ -1,0 +1,1494 @@
+/* =============================================================
+   components.css — Componentes UI y Layout
+   GurePlan · Cumple WCAG AA
+   Requiere: styles.css
+   Cubre: Header, Footer, LanguageSelector, CardEventDetails,
+          botones, estados de carga, grid de eventos
+   ============================================================= */
+
+/* Otros componentes */
+.welcome-text {
+  margin: var(--container-px);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   1. BOTONES
+   ───────────────────────────────────────────────────────────── */
+
+/* Base compartida */
+.btn-auth,
+.btn-login,
+.btn-logout {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-6);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  font-weight: var(--weight-bold);
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  border-radius: var(--radius-full);
+  text-decoration: none;
+  transition:
+    background-color var(--transition-fast),
+    color            var(--transition-fast),
+    border-color     var(--transition-fast),
+    box-shadow       var(--transition-fast);
+}
+
+.login-btn, .logout-btn {
+   background-color: var(--color-primary);           
+   color: var(--color-surface);
+   border: 1px solid var(--color-primary);
+  background-color: var(--color-surface);
+  color: var(--color-primary);
+  border: 2px solid var(--color-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  font-weight: var(--weight-bold);
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  transition:
+    background-color var(--transition-fast),
+    color            var(--transition-fast),
+    border-color     var(--transition-fast),
+    box-shadow       var(--transition-fast);
+  font-size: var(--text-sm);
+}
+
+/* Botón principal — login, registro, comprar entradas
+   Funciona en <button> y <a>: cubre display:inline-block y text-decoration:none del JSX */
+.btn-auth {
+  background-color: var(--color-accent);
+  color: var(--color-text-inverse);  /* blanco sobre #D95E00 — 4.6:1 ✓ AA */
+  border: 2px solid var(--color-accent);
+}
+
+.btn-auth:hover {
+  background-color: var(--color-accent-dark);
+  border-color: var(--color-accent-dark);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Botón de iniciar sesión en el header */
+.btn-login {
+  background-color: var(--color-accent);
+  color: var(--color-text-inverse);
+  border: 2px solid var(--color-accent);
+  padding: var(--space-2) var(--space-5);
+  font-size: var(--text-sm);
+}
+
+.btn-login:hover {
+  background-color: var(--color-accent-dark);
+  border-color: var(--color-accent-dark);
+}
+
+/* Botón de cerrar sesión — outline discreto */
+.btn-logout {
+  background-color: transparent;
+  color: rgba(255, 255, 255, 0.85); /* ~12:1 sobre navy ✓ AA */
+  border: 1.5px solid var(--glass-border);
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-regular);
+}
+
+.btn-logout:hover {
+  background-color: rgba(255, 255, 255, 0.10);
+  color: var(--color-text-inverse);
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   2. FORMULARIOS E INPUTS
+   (base compartida: usada en login/Auth)
+   ───────────────────────────────────────────────────────────── */
+
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  font-weight: var(--weight-regular);
+  color: var(--color-text-primary);
+  background-color: var(--color-surface);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-md);
+  line-height: 1.5;
+  transition:
+    border-color var(--transition-fast),
+    box-shadow   var(--transition-fast);
+  appearance: none;
+}
+
+input::placeholder {
+  color: var(--color-text-muted);
+  font-weight: var(--weight-regular);
+}
+
+input:hover {
+  border-color: var(--color-border-strong);
+}
+
+input:focus {
+  outline: none;
+  border-color: var(--color-border-focus);
+  box-shadow: 0 0 0 3px rgba(217, 94, 0, 0.18);
+}
+
+input[aria-invalid="true"] {
+  border-color: var(--color-error);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   3. HEADER  ›  .main-nav
+   ───────────────────────────────────────────────────────────── */
+
+.main-nav {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky);
+  width: 100%;
+  background-color: var(--color-primary-dark);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-inline: auto;
+  padding: var(--space-3) var(--container-px);
+}
+
+/* El nav tenía inline styles width/display/justify/align; los movemos aquí */
+#navbar {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: var(--container-max);
+  margin-inline: auto;
+  padding-inline: var(--container-px);
+  height: 64px;
+}
+
+/* Grupo izquierdo: logo + links */
+.nav-left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+}
+
+/* Logo */
+.nav-brand {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  text-decoration: none;
+  transition: opacity var(--transition-fast);
+}
+
+.nav-brand::before {
+  content: "";
+  display: inline-block;
+  width: 36px;
+  height: 36px;
+  background-image: url('/images/logo_GurePlan.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  flex-shrink: 0;
+}
+
+.nav-brand:hover {
+  opacity: 0.85;
+}
+
+.logo {
+  height: 40px;
+  width: auto;
+  display: block;
+}
+
+a.nav-logo {
+  display: flex;
+  flex-direction: row;
+  text-decoration: none;
+  align-items: center;
+  font-weight: var(--weight-bold);
+}
+
+/* Links de navegación */
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.nav-links a {
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-regular);
+  color: var(--color-accent);
+  font-weight: var(--weight-bold);
+  text-decoration: none;
+  border-radius: var(--radius-md);
+  transition:
+    color            var(--transition-fast),
+    background-color var(--transition-fast);
+}
+
+.nav-links a:hover {
+  color: var(--color-text-inverse);
+  background-color: rgba(255, 255, 255, 0.10);
+}
+
+/* Página activa */
+.nav-links a.active {
+  color: var(--color-accent-light);
+  background-color: rgba(217, 94, 0, 0.18);
+  font-weight: var(--weight-bold);
+}
+
+/* Grupo derecho: usuario / botón login */
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.nav-user {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.nav-username {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  color: rgba(255, 255, 255, 0.90); /* ~13:1 ✓ AA */
+}
+
+/* ─────────────────────────────────────────────────────────────
+   4. FOOTER  ›  .main-footer
+   ───────────────────────────────────────────────────────────── */
+
+.main-footer {
+  background-color: var(--color-primary-dark);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  margin-top: auto;
+}
+
+.footer-content {
+  padding: var(--space-6) var(--container-px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.footer-content > p {
+  font-size: var(--text-sm);
+  color: rgba(255, 255, 255, 0.55); /* ~7:1 sobre #071228 ✓ AA */
+  max-width: none;
+  margin: 0;
+}
+
+.footer-links {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+}
+
+.footer-links a {
+  font-size: var(--text-sm);
+  color: rgba(255, 255, 255, 0.65); /* ~8:1 ✓ AA */
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+.footer-links a:hover {
+  color: var(--color-text-inverse);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   5. LANGUAGE SELECTOR  ›  .language-selector
+   ───────────────────────────────────────────────────────────── */
+
+/* Inline styles eliminados del JSX */
+.language-selector {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+}
+
+.language-selector > span {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  color: rgba(255, 255, 255, 0.75);
+  white-space: nowrap;
+}
+
+/* Botones de idioma (tienen inline style en el JSX) */
+.language-selector button {
+  padding: var(--space-1) var(--space-3);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-regular);
+  color: rgba(255, 255, 255, 0.80);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1.5px solid var(--glass-border);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition:
+    background-color var(--transition-fast),
+    color            var(--transition-fast),
+    border-color     var(--transition-fast);
+}
+
+.language-selector button:hover {
+  background: rgba(255, 255, 255, 0.18);
+  color: var(--color-text-inverse);
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   6. CARD EVENT DETAILS  ›  .event-details-container
+   ───────────────────────────────────────────────────────────── */
+
+.event-details-container {
+  max-width: var(--container-narrow);
+  margin-inline: auto;
+  padding-inline: var(--container-px);
+  padding-block: var(--space-8);
+}
+
+/* Hero: imagen principal + botón de favorito */
+.details-hero {
+  position: relative;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  aspect-ratio: 16 / 7;
+  background-color: var(--color-bg-alt);
+}
+
+.details-hero img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Cuerpo de contenido */
+.details-content {
+  padding-block: var(--space-8);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+/* Cabecera: badge + título + precio */
+
+header {
+  margin-bottom: var(--space-5);
+}
+
+header h1 {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-regular);
+  color: var(--color-accent);
+  font-family: var(--font-body);
+}
+
+.details-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-6);
+  flex-wrap: wrap;
+}
+
+.details-header h1 {
+  margin-top: var(--space-3);
+  font-size: calc(var(--text-display) * 0.72); /* misma escala que h2 */
+}
+
+/* Badge de tipo de evento — inline styles del JSX movidos aquí */
+.type-badge {
+  position: static;
+  display: inline-block;
+  padding: var(--space-1) var(--space-4);
+  margin-bottom: var(--space-3);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-inverse);
+  background-color: var(--color-primary);
+  border-radius: var(--radius-full);
+}
+
+/* Precio — inline styles del JSX movidos aquí (#6366f1 → --color-accent) */
+.price-tag {
+  font-size: calc(var(--text-base) * 1.4);
+  font-weight: var(--weight-bold);
+  color: var(--color-accent);   /* sustituye el #6366f1 hardcodeado ✓ AA */
+  white-space: nowrap;
+  padding-top: var(--space-2);
+}
+
+/* Grid de info: fecha, ubicación, horario */
+.details-info-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-4);
+}
+
+.info-item {
+  background-color: var(--color-bg-alt);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-4) var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.info-item h4 {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  color: var(--color-text-muted);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.info-item p {
+  font-size: var(--text-base);
+  color: var(--color-text-primary);
+  font-weight: var(--weight-regular);
+  max-width: none;
+  margin: 0;
+}
+
+/* Descripción HTML */
+.details-description h3 {
+  margin-bottom: var(--space-4);
+}
+
+.details-description div {
+  font-size: var(--text-base);
+  line-height: 1.75;
+  color: var(--color-text-secondary);
+}
+
+/* Estilos para el HTML inyectado vía dangerouslySetInnerHTML */
+.details-description div p  { max-width: none; margin-bottom: var(--space-4); }
+.details-description div h2,
+.details-description div h3 { margin-block: var(--space-5) var(--space-3); }
+.details-description div ul,
+.details-description div ol { padding-left: var(--space-6); margin-bottom: var(--space-4); }
+.details-description div a  { color: var(--color-primary); }
+
+/* Acciones: comprar + volver */
+.details-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  margin-top: var(--space-4);
+}
+
+/* Wrapper del enlace de compra — inline style del JSX movido aquí */
+.details-purchase {
+  margin-top: var(--space-10);
+  text-align: center;
+}
+
+/* Wrapper del botón volver — inline style del JSX movido aquí */
+.details-back {
+  margin-top: var(--space-8);
+  text-align: center;
+}
+
+/* Botón Volver: outline translúcido — reemplaza btn-auth + inline styles del JSX */
+a.btn-auth, button.btn-auth {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-6);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  font-weight: var(--weight-regular);
+  line-height: 1;
+  cursor: pointer;
+  border-radius: var(--radius-full);
+  text-decoration: none;
+  background-color: var(--color-primary)!important;;           
+  color: var(--color-surface)!important;
+  border: 1px solid var(--color-primary)!important;;   
+  transition:
+    background-color var(--transition-fast),
+    color            var(--transition-fast),
+    border-color     var(--transition-fast);
+}
+
+.btn-back:hover {
+  background-color: var(--color-bg-alt);
+  color: var(--color-text-primary);
+  border-color: var(--color-border-strong);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   7. GRID DE EVENTOS  ›  .events-grid
+   ───────────────────────────────────────────────────────────── */
+
+.events-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);   /* desktop: 3 columnas */
+  gap: var(--space-6);
+  margin: var(--container-px);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   8. ESTADO VACÍO  ›  .empty-state
+   ───────────────────────────────────────────────────────────── */
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-5);
+  padding: var(--space-20) var(--space-8);
+  text-align: center;
+}
+
+.empty-state p {
+  font-size: var(--text-base);
+  color: var(--color-text-muted);
+  max-width: 42ch;
+  margin: 0;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   9. CARGA  ›  .loading-spinner + .spinner
+   ───────────────────────────────────────────────────────────── */
+
+.loading-spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  padding: var(--space-20);
+  color: var(--color-text-muted);
+}
+
+.loading-spinner p {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  max-width: none;
+  margin: 0;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--color-border);
+  border-top-color: var(--color-accent);
+  border-radius: var(--radius-full);
+  animation: spin 0.75s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   10. RESPONSIVE — Componentes
+   ───────────────────────────────────────────────────────────── */
+
+/* Tablet ancho → 2 columnas */
+@media (max-width: 992px) {
+  .events-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-5);
+  }
+}
+
+/* Tablet (< 768px) */
+@media (max-width: 768px) {
+  /* Header */
+  .nav-links {
+    display: none;
+  }
+
+  #navbar {
+    height: 56px;
+  }
+
+  /* Footer */
+  .footer-content {
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  /* Event details */
+  .details-info-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-3);
+  }
+
+  .details-header {
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  /* Events grid → 1 columna en mobile */
+  .events-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+  }
+
+  /* Language selector */
+  .language-selector > span {
+    display: none;
+  }
+
+  /* EventSearcher */
+  .filters {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  #municipalities-container,
+  #type-container, #date-filter {
+    min-width: 0;
+    width: 100%;
+  }
+
+  #language-filter {
+    gap: var(--space-4);
+  }
+
+  /* CardWeather */
+  .weather-info {
+    gap: var(--space-4);
+  }
+}
+
+/* Mobile (< 480px) */
+@media (max-width: 480px) {
+  .event-details-container {
+    padding-block: var(--space-5);
+  }
+
+  .details-hero {
+    border-radius: var(--radius-md);
+    aspect-ratio: 4 / 3;
+  }
+
+  .details-content {
+    gap: var(--space-5);
+  }
+
+  /* EventSearcher */
+  .pagination {
+    gap: var(--space-2);
+  }
+
+  .pagination button {
+    padding: var(--space-2) var(--space-4);
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   11. EVENT SEARCHER  ›  .event-searcher
+   ───────────────────────────────────────────────────────────── */
+
+.event-searcher {
+  max-width: var(--container-max);
+  margin-inline: auto;
+  padding: var(--space-6) var(--container-px);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+/* Barra de filtros */
+.filters {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4) var(--space-5);
+  box-shadow: var(--shadow-sm);
+}
+
+@media (max-width: 768px) {
+  .filters {
+    align-items: center;
+  }
+}
+
+/* Selects: municipio y tipo */
+label {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  margin-left: 6px;
+}
+
+#municipalities-container,
+#type-container {
+  flex: 1;
+  min-width: 160px;
+}
+
+#municipalities-container select,
+#type-container select {
+  width: 100%;
+  padding: var(--space-2) var(--space-4);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-regular);
+  color: var(--color-text-primary);
+  background-color: var(--color-surface);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%235E6A87' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right var(--space-3) center;
+  padding-right: var(--space-8);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  appearance: none;
+  transition:
+    border-color var(--transition-fast),
+    box-shadow   var(--transition-fast);
+}
+
+#municipalities-container select:hover,
+#type-container select:hover {
+  border-color: var(--color-border-strong);
+}
+
+#municipalities-container select:focus,
+#type-container select:focus {
+  outline: none;
+  border-color: var(--color-border-focus);
+  box-shadow: 0 0 0 3px rgba(217, 94, 0, 0.18);
+}
+
+/* Filtro de fecha */
+#date-filter input[type="date"] {
+  padding: var(--space-2) var(--space-4);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--color-text-primary);
+  background-color: var(--color-surface);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  appearance: none;
+  transition:
+    border-color var(--transition-fast),
+    box-shadow   var(--transition-fast);
+    width: 100%;
+}
+
+#date-filter input[type="date"]:focus {
+  outline: none;
+  border-color: var(--color-border-focus);
+  box-shadow: 0 0 0 3px rgba(217, 94, 0, 0.18);
+}
+
+/* Filtro de idioma: checkboxes */
+#language-filter {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  padding-bottom: var(--space-3);
+}
+
+#language-filter label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  user-select: none;
+}
+
+#language-filter input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--color-accent);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* Banner de clima */
+.weather-banner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-5);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  border: 1px solid transparent;
+}
+
+.weather-banner--good {
+  background-color: var(--color-success-bg);
+  color: var(--color-success);       /* 4.6:1 ✓ AA */
+  border-color: rgba(26, 122, 74, 0.20);
+}
+
+.weather-banner--bad {
+  background-color: var(--color-info-bg);
+  color: var(--color-info);          /* 5.1:1 ✓ AA */
+  border-color: rgba(10, 90, 160, 0.20);
+}
+
+/* Contenedor de resultados (vista lista) */
+#view-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+#view-container p {
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--text-base);
+  color: var(--color-text-primary);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  max-width: none;
+  margin: 0;
+  cursor: pointer;
+  transition:
+    background-color var(--transition-fast),
+    border-color     var(--transition-fast);
+}
+
+#view-container p:hover {
+  background-color: var(--color-bg-alt);
+  border-color: var(--color-border-strong);
+}
+
+/* Paginación */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.pagination button {
+  padding: var(--space-2) var(--space-5);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  color: var(--color-text-inverse);
+  background-color: var(--color-primary);
+  border: 2px solid var(--color-primary);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition:
+    background-color var(--transition-fast),
+    opacity          var(--transition-fast);
+}
+
+.pagination button:hover:not(:disabled) {
+  background-color: var(--color-primary-dark);
+  border-color: var(--color-primary-dark);
+}
+
+.pagination button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.pagination span {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  color: var(--color-text-secondary);
+  padding: var(--space-2) var(--space-3);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   12. CARD WEATHER  ›  .card-weather
+   ───────────────────────────────────────────────────────────── */
+
+.card-weather {
+  max-width: var(--container-max);
+  margin-inline: auto;
+  margin-block: var(--space-3);
+  padding: var(--space-5) var(--container-px);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
+  color: var(--color-text-inverse);
+  box-shadow: var(--shadow-sm);
+}
+
+@media (max-width: 480px) {
+  .card-weather {
+    padding: var(--space-4);
+    margin: var(--container-px);
+    width: calc(100% - 2 * var(--container-px));
+  }
+}
+
+.weather-header, .weather-info h3 {
+  margin-bottom: 0!important;
+}
+
+.weather-info div
+{
+  margin-top: 0!important;
+  padding: 0!important;
+  border: none!important;
+}
+
+/* Modificadores por condición meteorológica */
+.card-weather.sunny {
+  background: linear-gradient(135deg, #1A4A6E 0%, #2A7AB5 100%);
+}
+
+.card-weather.cloud_sun {
+  background: linear-gradient(135deg, #1E3A5F 0%, #3D6A94 100%);
+}
+
+.card-weather.cloudy {
+  background: linear-gradient(135deg, #2D3748 0%, #4A5568 100%);
+}
+
+.card-weather.rain {
+  background: linear-gradient(135deg, #1A2F4A 0%, #2C4A6E 100%);
+}
+
+.card-weather.storm {
+  background: linear-gradient(135deg, #1A1A2E 0%, #2D2D44 100%);
+}
+
+.card-weather.snow {
+  background: linear-gradient(135deg, #2A3F55 0%, #4A6A85 100%);
+}
+
+.weather-info {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+  flex-wrap: wrap;
+}
+
+.weather-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  color: var(--color-accent-light);
+}
+
+.weather-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.card-weather h3 {
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  font-weight: var(--weight-bold);
+  color: var(--color-text-inverse);
+  margin-bottom: var(--space-2);
+}
+
+.weather-stats {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.weather-stats p {
+  font-size: var(--text-sm);
+  color: rgba(255, 255, 255, 0.85);  /* ~12:1 sobre navy ✓ AA */
+  max-width: none;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.weather-stats small {
+  font-size: var(--text-sm);
+  color: rgba(255, 255, 255, 0.65);  /* ~8:1 sobre navy ✓ AA */
+}
+
+/* ─────────────────────────────────────────────────────────────
+   13. CARD EVENT  ›  .card
+   ───────────────────────────────────────────────────────────── */
+
+.card {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow-sm);
+  transition:
+    transform   var(--transition-base),
+    box-shadow  var(--transition-base);
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Cabecera de la card: imagen + badge + favorito */
+.card-header {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background-color: var(--color-bg-alt);
+  flex-shrink: 0;
+}
+
+.card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform var(--transition-base);
+}
+
+.card:hover .card-img {
+  transform: scale(1.04);
+}
+
+/* Botón de favorito */
+.icon-fav {
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-3);
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(255, 255, 255, 0.92);
+  border: none;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  color: var(--color-text-muted);
+  transform: scale(1);
+  transition: transform 0.1s ease, color var(--transition-fast), background-color var(--transition-fast);
+}
+
+.icon-fav svg {
+  width: 18px;
+  height: 18px;
+}
+
+.icon-fav:hover {
+  background-color: var(--color-surface);
+  color: var(--color-error);
+  transform: scale(1.15);
+}
+
+.icon-fav.active,
+.icon-fav[aria-pressed="true"] {
+  color: var(--color-error);
+}
+
+/* Badge de tipo dentro de .card-header */
+.card-header .type-badge {
+  position: absolute;
+  bottom: var(--space-3);
+  left: var(--space-3);
+  margin-bottom: 0;
+}
+
+/* Cuerpo de la card */
+.card-content {
+  padding: var(--space-4) var(--space-5);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.content-top {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.card-title {
+  font-family: var(--font-display);
+  font-size: calc(var(--text-display) * 0.50);
+  font-weight: var(--weight-regular);
+  color: var(--color-text-primary);
+  line-height: 1.25;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.card-location {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  max-width: none;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.card-date {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  color: var(--color-primary);
+  max-width: none;
+  margin: 0;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   14. FOOTER  ›  footer (sin clase) y .main-footer
+   ───────────────────────────────────────────────────────────── */
+
+/* Versión simple del HTML renderizado (sin className) */
+footer {
+  background-color: var(--color-primary-dark);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  margin-top: auto;
+  width: 100%;
+  padding: var(--space-5) var(--container-px);
+  align-items: center;
+}
+
+footer > p {
+  font-size: var(--text-sm);
+  color: rgba(255, 255, 255, 0.55);  /* ~7:1 sobre #071228 ✓ AA */
+  margin: 0 var(--container-px);
+}
+
+footer p:first-child {
+  padding-bottom: 0;
+}
+
+footer a {
+  color: rgba(255, 255, 255, 0.70);  /* ~9:1 ✓ AA */
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+footer a:hover {
+  color: var(--color-text-inverse);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   15. APP MAIN  ›  .App y .contact-btn
+   ───────────────────────────────────────────────────────────── */
+
+.App {
+  max-width: var(--container-max);
+  margin-inline: auto;
+  padding-inline: var(--container-px);
+}
+
+/* <main> tenía inline style padding:20px; text-align:center — movido aquí */
+.App main {
+  padding: var(--space-5);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-5);
+}
+
+.App main h1 {
+  font-size: var(--text-display);
+}
+
+.App main p {
+  max-width: 55ch;
+  margin: 0;
+}
+
+/* Botón de contacto */
+.contact-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-3) var(--space-8);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  font-weight: var(--weight-bold);
+  color: var(--color-text-inverse);
+  background-color: var(--color-accent);
+  border: 2px solid var(--color-accent);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  text-decoration: none;
+  transition:
+    background-color var(--transition-fast),
+    box-shadow       var(--transition-fast);
+}
+
+.contact-btn:hover {
+  background-color: var(--color-accent-dark);
+  border-color: var(--color-accent-dark);
+  box-shadow: var(--shadow-sm);
+}
+/* ─────────────────────────────────────────────────────────────
+   16. FILTERS SIDEBAR  ›  aside.filters-sidebar
+   ───────────────────────────────────────────────────────────── */
+
+.filters-sidebar {
+  min-width: 260px;
+  flex-shrink: 0;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  display: flex;
+  flex-direction: row;
+  gap: var(--space-1);
+  position: sticky;
+  top: calc(64px + var(--space-5));
+  max-height: calc(100dvh - 64px - var(--space-8));
+  overflow-y: auto;
+  box-shadow: var(--shadow-sm);
+  margin: 0 var(--container-px);
+  z-index: 9999;
+  justify-content: space-around;
+}
+
+/* Grupo individual de filtro */
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: auto;
+}
+
+.filter-group:first-child { padding-top: 0; }
+
+.filter-group:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+/* Etiqueta de cada filtro */
+.filter-group > label {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  color: var(--color-text-muted);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* Select personalizado: municipio y tipo de evento */
+.custom-select {
+  width: 100%;
+  padding: var(--space-2) var(--space-8) var(--space-2) var(--space-3);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-regular);
+  color: var(--color-text-primary);
+  background-color: var(--color-bg);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7' viewBox='0 0 12 7'%3E%3Cpath fill='none' stroke='%235E6A87' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right var(--space-3) center;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  appearance: none;
+  line-height: 1.5;
+  transition:
+    border-color     var(--transition-fast),
+    box-shadow       var(--transition-fast),
+    background-color var(--transition-fast);
+}
+
+.custom-select:hover {
+  border-color: var(--color-border-strong);
+  background-color: var(--color-surface);
+}
+
+.custom-select:focus {
+  outline: none;
+  border-color: var(--color-border-focus);
+  background-color: var(--color-surface);
+  box-shadow: 0 0 0 3px rgba(217, 94, 0, 0.18);
+}
+
+/* Input de fecha */
+.custom-input-date {
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-regular);
+  color: var(--color-text-primary);
+  background-color: var(--color-bg);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  appearance: none;
+  line-height: 1.5;
+  transition:
+    border-color     var(--transition-fast),
+    box-shadow       var(--transition-fast),
+    background-color var(--transition-fast);
+}
+
+.custom-input-date:hover {
+  border-color: var(--color-border-strong);
+  background-color: var(--color-surface);
+}
+
+.custom-input-date:focus {
+  outline: none;
+  border-color: var(--color-border-focus);
+  background-color: var(--color-surface);
+  box-shadow: 0 0 0 3px rgba(217, 94, 0, 0.18);
+}
+
+/* Contenedor de checkboxes de idioma */
+.language-options {
+  display: flex;
+  flex-direction: row;
+  gap: var(--space-2);
+}
+
+/* Label + checkbox individual */
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  user-select: none;
+  transition: background-color var(--transition-fast);
+}
+
+.checkbox-label:hover {
+  background-color: var(--color-bg-alt);
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: 17px;
+  height: 17px;
+  flex-shrink: 0;
+  accent-color: var(--color-accent);
+  cursor: pointer;
+  margin: 0;
+}
+
+.checkbox-label span {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-regular);
+  color: var(--color-text-secondary);
+  line-height: 1;
+  transition: color var(--transition-fast);
+}
+
+.checkbox-label:hover span {
+  color: var(--color-text-primary);
+}
+
+.checkbox-label:has(input:checked) {
+  background-color: rgba(217, 94, 0, 0.06);
+}
+
+.checkbox-label:has(input:checked) span {
+  color: var(--color-accent);
+  font-weight: var(--weight-bold);
+}
+
+/* ── Responsive sidebar ───────────────────────────────────── */
+
+/* Tablet → barra horizontal */
+@media (max-width: 768px) {
+  .filters-sidebar {
+    width: 100%;
+    position: static;
+    max-height: none;
+    overflow-y: visible;
+    flex-direction: column;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    padding: var(--space-4) var(--space-5);
+    border-radius: var(--radius-md);
+  }
+
+  .filter-group {
+    flex: 1;
+    min-width: 160px;
+    padding-block: 0;
+    border-bottom: none;
+    border-right: 1px solid var(--color-border);
+    padding-right: var(--space-4);
+  }
+
+  .filter-group:last-child {
+    border-right: none;
+    padding-right: 0;
+  }
+
+  .language-options {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+}
+
+/* Mobile → columna apilada */
+@media (max-width: 480px) {
+  .filters-sidebar {
+    flex-direction: column;
+    border-radius: var(--radius-md);
+    padding: var(--space-4);
+  }
+
+  .filter-group {
+    border-right: none;
+    padding-right: 0;
+  }
+
+  .filter-group:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+}
