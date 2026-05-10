@@ -1,0 +1,256 @@
+/* =============================================================
+   pages.css — Layout de Páginas
+   GurePlan · Cumple WCAG AA
+   Requiere: styles.css + components.css
+   Cubre: #root, Auth (login/registro), About, Favorites
+   ============================================================= */
+
+/* ─────────────────────────────────────────────────────────────
+   1. LAYOUT RAÍZ
+   ───────────────────────────────────────────────────────────── */
+
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;  /* empuja el footer hacia abajo */
+}
+
+/* ─────────────────────────────────────────────────────────────
+   2. AUTH — login y registro  ›  .auth-container
+   ───────────────────────────────────────────────────────────── */
+
+.auth-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  padding: var(--space-10) var(--container-px);
+  background-color: var(--color-bg);
+}
+
+/* Formularios: login-form y register-form comparten estilos */
+#login-form,
+#register-form {
+  width: 100%;
+  max-width: 420px;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-10) var(--space-8);
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+#login-form h2,
+#register-form h2 {
+  font-size: calc(var(--text-display) * 0.57);  /* escala h3 */
+  text-align: center;
+  margin-bottom: var(--space-2);
+  color: var(--color-text-primary);
+}
+
+/* Los inputs ya tienen estilos base en components.css */
+#login-form input,
+#register-form input {
+  margin: 0;
+}
+
+/* Mensaje de error — sustituye inline style color:#f43f5e del JSX */
+.error-msg {
+  font-size: var(--text-sm);
+  color: var(--color-error);   /* #B81C1C — 5.5:1 sobre blanco ✓ AA */
+  max-width: none;
+  margin: 0;
+}
+
+/* Párrafo de cambio de modo (¿No tienes cuenta?) */
+#login-form > p:last-child,
+#register-form > p:last-child {
+  color: var(--color-text-muted);
+  text-align: center;
+  font-size: var(--text-sm);
+}
+
+/* Span de cambio de modo — sustituye inline style color:#6366f1 del JSX */
+.auth-switch {
+  color: var(--color-accent);       /* #D95E00 — 4.6:1 ✓ AA */
+  font-weight: var(--weight-bold);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: color var(--transition-fast);
+}
+
+.auth-switch:hover {
+  color: var(--color-accent-dark);
+}
+
+/* Botón de submit (btn-auth ya definido en components.css) */
+#login-form .btn-auth,
+#register-form .btn-auth {
+  width: 100%;
+  justify-content: center;
+  margin-top: var(--space-2);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   3. ABOUT  ›  .about-container.welcome-section
+   ───────────────────────────────────────────────────────────── */
+
+.about-container {
+  flex: 1;
+  max-width: var(--container-narrow);
+  margin-inline: auto;
+  padding-inline: var(--container-px);
+  padding-block: var(--space-12);
+}
+
+.welcome-section {
+  /* Combinado con .about-container — sin estilos adicionales necesarios */
+}
+
+.about-container > h1 {
+  margin-bottom: var(--space-5);
+}
+
+.about-container > p {
+  font-size: var(--text-base);
+  line-height: 1.75;
+  max-width: 60ch;
+}
+
+/* El div interior tenía inline styles (margin auto, maxWidth 800px, textAlign left)
+   → movidos aquí con className="about-details" */
+.about-details {
+  margin: var(--space-12) auto 0;
+  max-width: 800px;
+  text-align: left;
+}
+
+.about-container h3 {
+  margin-top: var(--space-8);
+  margin-bottom: var(--space-3);
+}
+
+.about-container h3:first-child {
+  margin-top: 0;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   4. FAVORITES  ›  .favorites-container
+   ───────────────────────────────────────────────────────────── */
+
+.favorites-container {
+  flex: 1;
+  max-width: var(--container-max);
+  margin-inline: auto;
+  padding-inline: var(--container-px);
+  padding-block: var(--space-10);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+/* Cabecera de la página */
+.page-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding-bottom: var(--space-6);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.page-header h1 {
+  font-size: var(--text-display);
+  color: var(--color-text-primary);
+}
+
+.page-header p {
+  font-size: var(--text-base);
+  color: var(--color-text-muted);
+  max-width: 55ch;
+  margin: 0;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   5. EVENTS PAGE — layout sidebar + contenido
+   ───────────────────────────────────────────────────────────── */
+
+/* Wrapper principal de la página de eventos */
+.events-page {
+  flex: 1;
+  max-width: var(--container-max);
+  margin-inline: auto;
+  padding-inline: var(--container-px);
+  padding-block: var(--space-8);
+  display: flex;
+  gap: var(--space-8);
+  align-items: flex-start;
+}
+
+/* Zona de contenido: buscador + resultados */
+.events-main {
+  flex: 1;
+  min-width: 0;           /* evita que el contenido desborde el flex */
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   6. RESPONSIVE — Páginas
+   ───────────────────────────────────────────────────────────── */
+
+/* Tablet (< 768px) */
+@media (max-width: 768px) {
+  .auth-container {
+    align-items: flex-start;
+    padding-top: var(--space-8);
+  }
+
+  #login-form,
+  #register-form {
+    padding: var(--space-8) var(--space-6);
+  }
+
+  .about-container {
+    padding-block: var(--space-8);
+  }
+
+  .favorites-container {
+    padding-block: var(--space-6);
+    gap: var(--space-6);
+  }
+
+  .page-header h1 {
+    font-size: calc(var(--text-display) * 0.80);
+  }
+
+  /* Events page: sidebar encima del contenido */
+  .events-page {
+    flex-direction: column;
+    gap: var(--space-5);
+    padding-block: var(--space-6);
+  }
+}
+
+/* Mobile (< 480px) */
+@media (max-width: 480px) {
+  #login-form,
+  #register-form {
+    padding: var(--space-6) var(--space-5);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .about-container {
+    padding-block: var(--space-6);
+  }
+
+  .events-page {
+    padding-block: var(--space-4);
+    gap: var(--space-4);
+  }
+}
