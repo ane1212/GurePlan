@@ -1,43 +1,39 @@
 import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
 function Header() {
+  const navigate = useNavigate();
   const [currentUser, setCurrentUser] = useState(() => {
     const stored = localStorage.getItem("currentUser");
     return stored ? JSON.parse(stored) : null;
   });
 
-  // Detecta la página activa comparando el nombre del archivo en la URL,
-  // igual que hacía la función navLink() original.
-  const currentPage = window.location.pathname.split("/").pop() || "index.html";
+  const currentPage = window.location.pathname;
 
   function handleLogout() {
     localStorage.removeItem("currentUser");
     setCurrentUser(null);
-    window.location.href = "index.html";
+    navigate("/");
   }
 
   return (
-    <header>
-      <nav id="navbar">
+    <header className="main-nav">
+      <nav id="navbar" style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div className="nav-left">
-          <h1>
-            <a href="index.html" className="nav-logo">
-              <img src="../images/logo_GurePlan.png" alt="GurePlan" className="logo" />
-              GurePlan
-            </a>
-          </h1>
-        </div>
-
-        <div className="nav-links">
-          <a href="index.html" className={currentPage === "index.html" ? "active" : ""}>
-            Inicio
-          </a>
-          <a href="favorites.html" className={currentPage === "favorites.html" ? "active" : ""}>
-            Favoritos
-          </a>
-          <a href="about.html" className={currentPage === "about.html" ? "active" : ""}>
-            Acerca de
-          </a>
+          <Link to="/" className="nav-brand">
+            <img src="assets/img/planes.png" alt="GurePlan" className="logo" style={{ height: '40px' }} />
+          </Link>
+          <div className="nav-links">
+            <Link to="/" className={currentPage === "/" ? "active" : ""}>
+              Inicio
+            </Link>
+            <Link to="/favorites" className={currentPage === "/favorites" ? "active" : ""}>
+              Favoritos
+            </Link>
+            <Link to="/about" className={currentPage === "/about" ? "active" : ""}>
+              Acerca de
+            </Link>
+          </div>
         </div>
 
         <div className="nav-right">
@@ -49,7 +45,7 @@ function Header() {
               </button>
             </div>
           ) : (
-            <button className="btn-login" onClick={() => (window.location.href = "login.html")}>
+            <button className="btn-login" onClick={() => navigate("/login")}>
               Iniciar sesión
             </button>
           )}

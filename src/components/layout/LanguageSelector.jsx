@@ -19,26 +19,26 @@ const LanguageSelector = () => {
     };
 
     return (
-        <div className="language-selector">
-            <span>{t('change_to')}:</span>
+        <div className="language-selector" style={{ padding: '10px', display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <span style={{ fontWeight: 'bold' }}>{t('change_to')}:</span>
 
             <button
                 onClick={() => changeLanguage('es')}
-                style={{ cursor: 'pointer',}}
+                style={{ cursor: 'pointer', padding: '4px 8px' }}
             >
                 Castellano
             </button>
 
             <button
                 onClick={() => changeLanguage('en')}
-                style={{ cursor: 'pointer',}}
+                style={{ cursor: 'pointer', padding: '4px 8px' }}
             >
                 English
             </button>
 
             <button
                 onClick={() => changeLanguage('eu')}
-                style={{ cursor: 'pointer',}}
+                style={{ cursor: 'pointer', padding: '4px 8px' }}
             >
                 Euskara
             </button>

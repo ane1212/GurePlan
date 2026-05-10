@@ -175,7 +175,32 @@
 }
 
 /* ─────────────────────────────────────────────────────────────
-   5. RESPONSIVE — Páginas
+   5. EVENTS PAGE — layout sidebar + contenido
+   ───────────────────────────────────────────────────────────── */
+
+/* Wrapper principal de la página de eventos */
+.events-page {
+  flex: 1;
+  max-width: var(--container-max);
+  margin-inline: auto;
+  padding-inline: var(--container-px);
+  padding-block: var(--space-8);
+  display: flex;
+  gap: var(--space-8);
+  align-items: flex-start;
+}
+
+/* Zona de contenido: buscador + resultados */
+.events-main {
+  flex: 1;
+  min-width: 0;           /* evita que el contenido desborde el flex */
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   6. RESPONSIVE — Páginas
    ───────────────────────────────────────────────────────────── */
 
 /* Tablet (< 768px) */
@@ -202,6 +227,13 @@
   .page-header h1 {
     font-size: calc(var(--text-display) * 0.80);
   }
+
+  /* Events page: sidebar encima del contenido */
+  .events-page {
+    flex-direction: column;
+    gap: var(--space-5);
+    padding-block: var(--space-6);
+  }
 }
 
 /* Mobile (< 480px) */
@@ -215,5 +247,10 @@
 
   .about-container {
     padding-block: var(--space-6);
+  }
+
+  .events-page {
+    padding-block: var(--space-4);
+    gap: var(--space-4);
   }
 }

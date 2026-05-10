@@ -1,328 +1,250 @@
-import { useState, useEffect, useRef } from 'react'
-import { events, municipalities, eventTypes } from '../services/eventService'
-import { getLocalWeather } from '../services/weatherService'
-// CardEvent lo construye otro compañero. Cuando esté listo, descomentar:
-// import CardEvent from '../ui/CardEvent'
+/**
+ * @file EventSearcher.jsx
+ * @description Componente principal para la búsqueda y filtrado de eventos culturales en Euskadi.
+ */
 
-// ---------------------------------------------------------------------------
-// Constantes
-// ---------------------------------------------------------------------------
+import { useState, useEffect, useRef } from "react";
+import { events, municipalities, eventTypes } from "../../services/eventService";
+import CardEvent from '../ui/CardEvent';
+import CardWeather from './CardWeather';
 
-const DEFAULT_LAT = 43.263
-const DEFAULT_LON = -2.935
+/** @constant {number} Latitud por defecto (Bilbao) */
+const DEFAULT_LAT = 43.2627;
+/** @constant {number} Longitud por defecto (Bilbao) */
+const DEFAULT_LON = -2.9253;
 
-const INDOOR_TYPES = [
-  'teatro', 'cine', 'exposición', 'exposicion',
-  'música', 'musica', 'conferencia', 'danza',
-  'ópera', 'opera', 'circo', 'infantil',
-]
-
-// ---------------------------------------------------------------------------
-// isBadWeather
-// Definida aquí porque weatherService.js no la exporta.
-// Devuelve true si el código WMO indica mal tiempo.
-// ---------------------------------------------------------------------------
-
-function isBadWeather(code) {
-  if (code == null) return false
-  return (
-    (code >= 45 && code <= 48) ||
-    (code >= 51 && code <= 67) ||
-    (code >= 71 && code <= 77) ||
-    (code >= 80 && code <= 86) ||
-    (code >= 95 && code <= 99)
-  )
-}
-
-// ---------------------------------------------------------------------------
-// isIndoor
-// ---------------------------------------------------------------------------
-
-function isIndoor(event) {
-  if (!event.type) return false
-  return INDOOR_TYPES.some(t => event.type.toLowerCase().includes(t))
-}
-
-// ---------------------------------------------------------------------------
-// EventSearcher
-// ---------------------------------------------------------------------------
-
+/**
+ * Componente EventSearcher
+ * @component
+ * @description Gestiona la interfaz de búsqueda, incluyendo filtros de municipio, tipo, fecha e idioma.
+ * También coordina la actualización de la información meteorológica basada en la selección del usuario.
+ */
 function EventSearcher() {
+  const [municipalityList, setMunicipalityList] = useState([]);
+  const [typeList, setTypeList] = useState([]);
 
-  // --- Estado de los selects ---
-  const [municipalityList, setMunicipalityList] = useState([])
-  const [typeList, setTypeList] = useState([])
-
-  // --- Estado de los filtros activos ---
-  const [selectedMunicipality, setSelectedMunicipality] = useState('todos')
-  const [selectedType, setSelectedType] = useState('todos')
+  const [selectedMunicipality, setSelectedMunicipality] = useState("todos");
+  const [selectedType, setSelectedType] = useState("todos");
   const [selectedDate, setSelectedDate] = useState(
-    new Date().toISOString().split('T')[0]
-  )
-  const [selectedLanguages, setSelectedLanguages] = useState([])
+    new Date().toISOString().split("T")[0],
+  );
 
-  // --- Estado de los resultados ---
-  const [eventList, setEventList] = useState([])
-  const [weatherData, setWeatherData] = useState(null)
-  const [weatherBanner, setWeatherBanner] = useState('good')
-  const [loading, setLoading] = useState(false)
-  const [currentPage, setCurrentPage] = useState(1)
-  const [showResetMessage, setShowResetMessage] = useState(false)
+  const [eventList, setEventList] = useState([]);
+  const [currentCoords, setCurrentCoords] = useState({ lat: DEFAULT_LAT, lon: DEFAULT_LON });
+  const [loading, setLoading] = useState(false);
+  const [selectedLanguages, setSelectedLanguages] = useState([]);
 
-  // --- Mapa de coordenadas por municipio ---
-  const municipalityCoords = useRef(new Map())
+  const municipalityCoords = useRef(new Map());
 
-  // ---------------------------------------------------------------------------
-  // useEffect de reset de página
-  // Observa solo los filtros, NO currentPage, para evitar bucle infinito.
-  // Cuando el usuario cambia un filtro: vuelve a página 1 y muestra el aviso
-  // 3 segundos. El return limpia el timer si el componente se desmonta antes.
-  // ---------------------------------------------------------------------------
+  // Nombre del municipio para mostrar en el CardWeather
+  const selectedMunicipalityName = municipalityList.find(
+    (m) => String(m.id) === selectedMunicipality
+  )?.name || "Euskadi";
 
-  useEffect(() => {
-    setCurrentPage(1)
-    setShowResetMessage(true)
-    const timer = setTimeout(() => setShowResetMessage(false), 3000)
-    return () => clearTimeout(timer)
-  }, [selectedMunicipality, selectedType, selectedDate, selectedLanguages])
-
-  // ---------------------------------------------------------------------------
-  // handleLanguageChange
-  // ---------------------------------------------------------------------------
-
+  /**
+   * Maneja el cambio de selección de idiomas.
+   * @param {string} langCode - Código del idioma (ES, EU, EN).
+   */
   function handleLanguageChange(langCode) {
-    setSelectedLanguages(prev =>
+    setSelectedLanguages((prev) =>
       prev.includes(langCode)
-        ? prev.filter(l => l !== langCode)
-        : [...prev, langCode]
-    )
+        ? prev.filter((l) => l !== langCode)
+        : [...prev, langCode],
+    );
   }
 
-  // ---------------------------------------------------------------------------
-  // useEffect de inicialización — se ejecuta solo al montar.
-  // ---------------------------------------------------------------------------
-
+  // 1. Carga inicial de municipios y tipos
   useEffect(() => {
+    /**
+     * Inicializa los datos de los selectores de búsqueda.
+     * @async
+     */
     async function init() {
-      const allMunicipalities = await municipalities()
+      try {
+        const allMunicipalities = await municipalities();
+        setMunicipalityList(allMunicipalities);
 
-      allMunicipalities.forEach(m => {
-        if (m.lat && m.lon) {
-          municipalityCoords.current.set(String(m.id), { lat: m.lat, lon: m.lon })
-        }
-      })
-
-      const bilbao = allMunicipalities.find(
-        m => m.name?.toLowerCase() === 'bilbao'
-      )
-      const ordered = [
-        ...(bilbao ? [bilbao] : []),
-        ...allMunicipalities.filter(m => !bilbao || m.id !== bilbao.id),
-      ]
-      setMunicipalityList(ordered)
-
-      const allTypes = await eventTypes()
-      setTypeList(allTypes)
+        const allTypes = await eventTypes();
+        setTypeList(allTypes);
+      } catch (error) {
+        console.error("Error en init:", error);
+      }
     }
+    init();
+  }, []);
 
-    init()
-  }, [])
-
-  // ---------------------------------------------------------------------------
-  // useEffect de filtros — se ejecuta cuando cambia un filtro o la página.
-  // ---------------------------------------------------------------------------
-
+  // 2. Efecto de filtrado y actualización de clima
   useEffect(() => {
+    /**
+     * Aplica los filtros seleccionados y recupera los eventos de la API.
+     * También gestiona el posicionamiento geográfico para el componente del clima.
+     * @async
+     */
     async function applyFilters() {
-      setLoading(true)
+      const municipalityId = selectedMunicipality !== "todos" ? selectedMunicipality : null;
 
-      let day = null, month = null, year = null
-      if (selectedDate) {
-        const [y, m, d] = selectedDate.split('-')
-        day = parseInt(d)
-        month = parseInt(m)
-        year = parseInt(y)
+      // ACTUALIZACIÓN DEL CLIMA
+      if (municipalityId === "todos") {
+        setCurrentCoords({ lat: DEFAULT_LAT, lon: DEFAULT_LON });
       }
 
-      const municipalityId = selectedMunicipality !== 'todos' ? selectedMunicipality : null
-      const type = selectedType !== 'todos' ? selectedType : null
-
-      const results = await events(30, currentPage, day, month, municipalityId, null, type, year)
-
-      // Obtiene el tiempo con getLocalWeather (nombre real en weatherService.js)
-      let weather = null
-      if (municipalityId && municipalityCoords.current.has(municipalityId)) {
-        const { lat, lon } = municipalityCoords.current.get(municipalityId)
-        weather = await getLocalWeather(lat, lon)
-      } else if (results.length > 0 && results[0].lat && results[0].lon) {
-        weather = await getLocalWeather(results[0].lat, results[0].lon)
-      } else {
-        weather = await getLocalWeather(DEFAULT_LAT, DEFAULT_LON)
-      }
-
-      setWeatherData(weather)
-
-      // Filtro de idioma en frontend
-      let filteredResults = results
-      if (selectedLanguages.length > 0) {
-        filteredResults = results.filter(e =>
-          e.language && selectedLanguages.includes(e.language)
-        )
-      }
-
-      // Banner del tiempo y filtro de interior
-      // getLocalWeather devuelve el campo como "weathercode"
-      const weatherCode = weather?.weathercode ?? null
-      if (isBadWeather(weatherCode) && type === null) {
-        const indoorResults = filteredResults.filter(e => isIndoor(e))
-        if (indoorResults.length > 0) {
-          setEventList(indoorResults)
-          setWeatherBanner('bad')
-        } else {
-          setEventList(filteredResults)
-          setWeatherBanner('bad-no-indoor')
+      // CARGA DE EVENTOS
+      setLoading(true);
+      try {
+        let day = null, month = null, year = null;
+        if (selectedDate) {
+          const [y, m, d] = selectedDate.split("-");
+          day = parseInt(d); month = parseInt(m); year = parseInt(y);
         }
-      } else {
-        setEventList(filteredResults)
-        setWeatherBanner('good')
-      }
 
-      setLoading(false)
+        const type = selectedType !== "todos" ? selectedType : null;
+
+        const results = await events({
+          elements: 30,
+          page: 1,
+          day,
+          month,
+          municipalityId: municipalityId === "todos" ? null : municipalityId,
+          type,
+          year,
+        });
+
+        let filteredResults = results;
+        if (selectedLanguages.length > 0) {
+          filteredResults = results.filter(
+            (e) => e.language && selectedLanguages.includes(e.language.toUpperCase()),
+          );
+        }
+        setEventList(filteredResults);
+
+        // Si hemos encontrado eventos y el municipio no tenía coordenadas, las extraemos del primer evento
+        if (filteredResults.length > 0 && municipalityId && municipalityId !== "todos") {
+          const firstEvent = filteredResults[0];
+          if (firstEvent.lat && firstEvent.lon) {
+            setCurrentCoords({ lat: firstEvent.lat, lon: firstEvent.lon });
+          }
+        } else if (municipalityId && municipalityId !== "todos") {
+          // FALLBACK: Si no hay eventos, buscamos las coordenadas por el nombre del municipio
+          try {
+            const geoRes = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(selectedMunicipalityName)}&count=1&language=es&format=json`);
+            const geoData = await geoRes.json();
+            if (geoData.results && geoData.results.length > 0) {
+              const { latitude, longitude } = geoData.results[0];
+              setCurrentCoords({ lat: latitude, lon: longitude });
+            }
+          } catch (err) {
+            console.error("Error en geocoding fallback:", err);
+          }
+        } else if (municipalityId === "todos") {
+          setCurrentCoords({ lat: DEFAULT_LAT, lon: DEFAULT_LON });
+        }
+      } catch (error) {
+        console.error("Error cargando eventos:", error);
+      } finally {
+        setLoading(false);
+      }
     }
 
-    applyFilters()
-  }, [selectedMunicipality, selectedType, selectedDate, selectedLanguages, currentPage])
-
-  // ---------------------------------------------------------------------------
-  // Render
-  // ---------------------------------------------------------------------------
+    applyFilters();
+  }, [selectedMunicipality, selectedType, selectedDate, selectedLanguages, municipalityList]);
 
   return (
-    <section className="event-searcher">
+    <section className="event-searcher-container">
+      <div className="searcher-main">
+        <aside className="filters-sidebar">
+          <div className="filter-group">
+            <label>Municipio</label>
+            <select
+              value={selectedMunicipality}
+              onChange={(e) => setSelectedMunicipality(e.target.value)}
+              className="custom-select"
+            >
+              <option value="todos">Todos los municipios</option>
+              {municipalityList.map((m) => (
+                <option key={m.id} value={String(m.id)}>
+                  {m.name}
+                </option>
+              ))}
+            </select>
+          </div>
 
-      <div className="filters">
+          <div className="filter-group">
+            <label>Tipo de Evento</label>
+            <select
+              value={selectedType}
+              onChange={(e) => setSelectedType(e.target.value)}
+              className="custom-select"
+            >
+              <option value="todos">Cualquier tipo</option>
+              {typeList.map((t) => (
+                <option key={t.id} value={t.id}>
+                  {t.name}
+                </option>
+              ))}
+            </select>
+          </div>
 
-        {/* Filtro de municipio */}
-        <div id="municipalities-container">
-          <label htmlFor="municipality-select">Municipio:</label>
-          <select
-            value={selectedMunicipality}
-            onChange={e => setSelectedMunicipality(e.target.value)}
-          >
-            <option value="todos">Todos</option>
-            {municipalityList.map(m => (
-              <option key={m.id} value={String(m.id)}>
-                {m.name}
-              </option>
-            ))}
-          </select>
-        </div>
+          <div className="filter-group">
+            <label>Fecha</label>
+            <input
+              type="date"
+              value={selectedDate}
+              onChange={(e) => setSelectedDate(e.target.value)}
+              className="custom-input-date"
+            />
+          </div>
 
-        {/* Filtro de tipo de evento */}
-        <div id="type-container">
-          <label htmlFor="type-select">Tipo de evento:</label>
-          <select
-            value={selectedType}
-            onChange={e => setSelectedType(e.target.value)}
-          >
-            <option value="todos">Todos</option>
-            {typeList.map(t => (
-              <option key={t.id} value={t.id}>
-                {t.name}
-              </option>
-            ))}
-          </select>
-        </div>
+          <div className="filter-group">
+            <label>Idiomas</label>
+            <div className="language-options">
+              {[
+                { code: "ES", label: "Español" },
+                { code: "EU", label: "Euskera" },
+                { code: "EN", label: "Inglés" },
+              ].map(({ code, label }) => (
+                <label key={code} className="checkbox-label">
+                  <input
+                    type="checkbox"
+                    checked={selectedLanguages.includes(code)}
+                    onChange={() => handleLanguageChange(code)}
+                  />
+                  <span>{label}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+        </aside>
 
-        {/* Filtro de fecha */}
-        <div id="date-filter">
-          <label htmlFor="date-input">Fecha:</label>
-          <input
-            type="date"
-            value={selectedDate}
-            onChange={e => setSelectedDate(e.target.value)}
-          />
-        </div>
+        <main className="results-content">
+          <div className="weather-container-top" style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '2rem' }}>
+            <CardWeather
+              key={`${currentCoords.lat}-${currentCoords.lon}-${selectedMunicipality}`}
+              lat={currentCoords.lat}
+              lon={currentCoords.lon}
+              municipalityName={selectedMunicipalityName}
+            />
+          </div>
 
-        {/* Filtro de idioma */}
-        <div id="language-filter">
-          {[
-            { code: 'ES', label: 'Español' },
-            { code: 'EU', label: 'Euskera' },
-            { code: 'EN', label: 'Inglés'  },
-          ].map(({ code, label }) => (
-            <label key={code}>
-              <input
-                type="checkbox"
-                checked={selectedLanguages.includes(code)}
-                onChange={() => handleLanguageChange(code)}
-              />
-              {label}
-            </label>
-          ))}
-        </div>
-
+          <div className="events-grid">
+            {loading ? (
+              <div className="loading-spinner">
+                <div className="spinner"></div>
+                <p>Buscando experiencias...</p>
+              </div>
+            ) : eventList.length === 0 ? (
+              <div className="empty-state">
+                <p>No se han encontrado eventos para estos filtros.</p>
+              </div>
+            ) : (
+              eventList.map((event) => (
+                <CardEvent key={event.id} event={event} />
+              ))
+            )}
+          </div>
+        </main>
       </div>
-
-      {/* Banner del tiempo */}
-      {weatherBanner === 'bad' && (
-        <div className="weather-banner weather-banner--bad">
-          <span>Hoy llueve, te recomendamos solo planes de interior como teatro, cine o exposiciones</span>
-        </div>
-      )}
-      {weatherBanner === 'bad-no-indoor' && (
-        <div className="weather-banner weather-banner--bad">
-          <span>Hoy llueve, no hemos encontrado planes de interior disponibles, mostrando todos</span>
-        </div>
-      )}
-      {weatherBanner === 'good' && (
-        <div className="weather-banner weather-banner--good">
-          <span>Buen tiempo, te mostramos todos los planes disponibles</span>
-        </div>
-      )}
-
-      {/* Aviso de reset de página */}
-      {showResetMessage && (
-        <div className="reset-message">
-          Has cambiado un filtro, mostrando resultados desde la página 1.
-        </div>
-      )}
-
-      {/* Lista de eventos */}
-      <div id="view-container">
-        {loading && <p>Cargando eventos...</p>}
-
-        {!loading && eventList.length === 0 && (
-          <p>No se encontraron eventos.</p>
-        )}
-
-        {!loading && eventList.map(event => (
-          // TODO: reemplazar por <CardEvent key={event.id} event={event} />
-          <p key={event.id}>{event.title}</p>
-        ))}
-      </div>
-
-      {/* Paginación */}
-      <div className="pagination">
-        <button
-          onClick={() => setCurrentPage(p => p - 1)}
-          disabled={currentPage === 1}
-        >
-          Anterior
-        </button>
-
-        <span>Página {currentPage}</span>
-
-        <button
-          onClick={() => setCurrentPage(p => p + 1)}
-          disabled={eventList.length < 30}
-        >
-          Siguiente
-        </button>
-      </div>
-
     </section>
-  )
+  );
 }
 
-export default EventSearcher
+export default EventSearcher;
