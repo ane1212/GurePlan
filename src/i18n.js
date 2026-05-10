@@ -27,7 +27,8 @@ const resources = {
             "event_type": "Tipo de Evento",
             "date": "Fecha",
             "languages": "Idiomas",
-            "all": "Todos"
+            "all": "Todos",
+            'change_to': "Cambiar a"
         }
     },
     en: {
@@ -44,7 +45,8 @@ const resources = {
             "event_type": "Event Type",
             "date": "Date",
             "languages": "Languages",
-            "all": "All"
+            "all": "All",
+            'change_to': "Change to"
         }
     },
     eu: {
@@ -61,7 +63,8 @@ const resources = {
             "event_type": "Ekitaldi Mota",
             "date": "Data",
             "languages": "Hizkuntzak",
-            "all": "Guztiak"
+            "all": "Guztiak",
+            'change_to': "Hauetara aldatu"
         }
     }
 };
