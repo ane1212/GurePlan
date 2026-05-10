@@ -77,7 +77,7 @@ function App() {
 
           {currentUser ? (
             <div className="user-profile">
-              <span className="username">{currentUser.name}</span>
+              <span className="nav-username">{currentUser.name}</span>
               <button className="logout-btn" onClick={handleLogout}>
                 {t('logout')}
               </button>
@@ -94,12 +94,6 @@ function App() {
         <Routes>
           <Route path="/" element={
             <>
-              <section className="top-section">
-                <div className="welcome-text">
-                  <h1>{t('welcome')}</h1>
-                  <p>{t('description')}</p>
-                </div>
-              </section>
               <EventSearcher />
             </>
           } />
